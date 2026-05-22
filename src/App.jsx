@@ -31,6 +31,7 @@ import BlockchainCredentials from './pages/BlockchainCredentials';
 import LearnFlowContentStudio from './pages/LearnFlowContentStudio';
 import AdaptiveLearningPaths from './pages/AdaptiveLearningPaths';
 import AutonomicSystem from './pages/AutonomicSystem';
+import Layout from './Layout';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -58,37 +59,38 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/Dashboard" element={<Dashboard />} />
-      <Route path="/ProcessLibrary" element={<ProcessLibrary />} />
-      <Route path="/LearningPaths" element={<LearningPaths />} />
-      <Route path="/ARGuidance" element={<ARGuidance />} />
-      <Route path="/VRSimulation" element={<VRSimulation />} />
-      <Route path="/Analytics" element={<Analytics />} />
-      <Route path="/CreateProcess" element={<CreateProcess />} />
-      <Route path="/Integrations" element={<Integrations />} />
-      <Route path="/EquipmentManagement" element={<EquipmentManagement />} />
-      <Route path="/SupervisorDashboard" element={<SupervisorDashboard />} />
-      <Route path="/FeedbackManagement" element={<FeedbackManagement />} />
-      <Route path="/Certifications" element={<Certifications />} />
-      <Route path="/LearningPathDetails" element={<LearningPathDetails />} />
-      <Route path="/ProcessExecution" element={<ProcessExecution />} />
-      <Route path="/AIContentStudio" element={<AIContentStudio />} />
-      <Route path="/KnowledgeHub" element={<KnowledgeHub />} />
-      <Route path="/Awards" element={<Awards />} />
-      <Route path="/SafetyDashboard" element={<SafetyDashboard />} />
-      <Route path="/Profile" element={<Profile />} />
-      <Route path="/ReportBuilder" element={<ReportBuilder />} />
-      <Route path="/TeamChallenges" element={<TeamChallenges />} />
-      <Route path="/APIManager" element={<APIManager />} />
-      <Route path="/BlockchainCredentials" element={<BlockchainCredentials />} />
-      <Route path="/LearnFlowContentStudio" element={<LearnFlowContentStudio />} />
-      <Route path="/AdaptiveLearningPaths" element={<AdaptiveLearningPaths />} />
-      <Route path="/AutonomicSystem" element={<AutonomicSystem />} />
-      {/* Add your page Route elements here */}
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/ProcessLibrary" element={<ProcessLibrary />} />
+        <Route path="/LearningPaths" element={<LearningPaths />} />
+        <Route path="/ARGuidance" element={<ARGuidance />} />
+        <Route path="/VRSimulation" element={<VRSimulation />} />
+        <Route path="/Analytics" element={<Analytics />} />
+        <Route path="/CreateProcess" element={<CreateProcess />} />
+        <Route path="/Integrations" element={<Integrations />} />
+        <Route path="/EquipmentManagement" element={<EquipmentManagement />} />
+        <Route path="/SupervisorDashboard" element={<SupervisorDashboard />} />
+        <Route path="/FeedbackManagement" element={<FeedbackManagement />} />
+        <Route path="/Certifications" element={<Certifications />} />
+        <Route path="/LearningPathDetails" element={<LearningPathDetails />} />
+        <Route path="/ProcessExecution" element={<ProcessExecution />} />
+        <Route path="/AIContentStudio" element={<AIContentStudio />} />
+        <Route path="/KnowledgeHub" element={<KnowledgeHub />} />
+        <Route path="/Awards" element={<Awards />} />
+        <Route path="/SafetyDashboard" element={<SafetyDashboard />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/ReportBuilder" element={<ReportBuilder />} />
+        <Route path="/TeamChallenges" element={<TeamChallenges />} />
+        <Route path="/APIManager" element={<APIManager />} />
+        <Route path="/BlockchainCredentials" element={<BlockchainCredentials />} />
+        <Route path="/LearnFlowContentStudio" element={<LearnFlowContentStudio />} />
+        <Route path="/AdaptiveLearningPaths" element={<AdaptiveLearningPaths />} />
+        <Route path="/AutonomicSystem" element={<AutonomicSystem />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </Layout>
   );
 };
 
