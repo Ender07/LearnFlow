@@ -6,7 +6,25 @@ import {
   LayoutDashboard,
   Route,
   BarChart3,
-  Plus
+  Plus,
+  Workflow,
+  MonitorPlay,
+  Glasses,
+  Brain,
+  Lightbulb,
+  GitFork,
+  Atom,
+  Key,
+  Users,
+  MessageSquare,
+  Award,
+  Hammer,
+  Plug,
+  Shield,
+  User,
+  FileText,
+  Swords,
+  Code
 } from "lucide-react";
 import { DataProvider } from "@/components/providers/DataProvider";
 import EnhancedErrorBoundary from "@/components/common/EnhancedErrorBoundary";
@@ -32,48 +50,44 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navGroups = [
   {
-    label: "Learn",
+    label: "Core Training",
     items: [
-      {
-        title: "Dashboard",
-        url: createPageUrl("Dashboard"),
-        icon: LayoutDashboard,
-        description: "Your starting point",
-        shortcut: "d"
-      },
-      {
-        title: "Process Library",
-        url: createPageUrl("ProcessLibrary"),
-        icon: BookOpen,
-        description: "Browse all guides",
-        shortcut: "p"
-      },
-      {
-        title: "Learning Paths",
-        url: createPageUrl("LearningPaths"),
-        icon: Route,
-        description: "Structured courses",
-        shortcut: "l"
-      }
+      { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Your starting point" },
+      { title: "Process Library", url: createPageUrl("ProcessLibrary"), icon: BookOpen, description: "Browse all guides" },
+      { title: "Learning Paths", url: createPageUrl("LearningPaths"), icon: Route, description: "Structured courses" },
+      { title: "Process Execution", url: createPageUrl("ProcessExecution"), icon: Workflow, description: "Execute processes" },
+      { title: "Learning Path Details", url: createPageUrl("LearningPathDetails"), icon: GitFork, description: "View path details" }
+    ]
+  },
+  {
+    label: "Advanced Tech",
+    items: [
+      { title: "AR Guidance", url: createPageUrl("ARGuidance"), icon: MonitorPlay, description: "Augmented Reality" },
+      { title: "VR Simulation", url: createPageUrl("VRSimulation"), icon: Glasses, description: "Virtual Reality" },
+      { title: "AI Content Studio", url: createPageUrl("AIContentStudio"), icon: Brain, description: "AI content creation" },
+      { title: "LearnFlow Studio", url: createPageUrl("LearnFlowContentStudio"), icon: Lightbulb, description: "Manage content" },
+      { title: "Adaptive Paths", url: createPageUrl("AdaptiveLearningPaths"), icon: Atom, description: "Personalized learning" },
+      { title: "Autonomic System", url: createPageUrl("AutonomicSystem"), icon: Atom, description: "Autonomous management" },
+      { title: "Blockchain Credentials", url: createPageUrl("BlockchainCredentials"), icon: Key, description: "Digital credentials" }
     ]
   },
   {
     label: "Management",
     items: [
-      {
-        title: "Analytics",
-        url: createPageUrl("Analytics"),
-        icon: BarChart3,
-        description: "Progress insights",
-        shortcut: "shift+a"
-      },
-      {
-        title: "Create Process",
-        url: createPageUrl("CreateProcess"),
-        icon: Plus,
-        description: "New instruction",
-        shortcut: "shift+c"
-      }
+      { title: "Analytics", url: createPageUrl("Analytics"), icon: BarChart3, description: "Progress insights" },
+      { title: "Create Process", url: createPageUrl("CreateProcess"), icon: Plus, description: "New instruction" },
+      { title: "Supervisor Dashboard", url: createPageUrl("SupervisorDashboard"), icon: Users, description: "Oversee operations" },
+      { title: "Feedback Management", url: createPageUrl("FeedbackManagement"), icon: MessageSquare, description: "Handle feedback" },
+      { title: "Certifications", url: createPageUrl("Certifications"), icon: Award, description: "Manage certifications" },
+      { title: "Equipment Management", url: createPageUrl("EquipmentManagement"), icon: Hammer, description: "Track equipment" },
+      { title: "Integrations", url: createPageUrl("Integrations"), icon: Plug, description: "External connections" },
+      { title: "Knowledge Hub", url: createPageUrl("KnowledgeHub"), icon: Lightbulb, description: "Knowledge articles" },
+      { title: "Awards", url: createPageUrl("Awards"), icon: Award, description: "View achievements" },
+      { title: "Safety Dashboard", url: createPageUrl("SafetyDashboard"), icon: Shield, description: "Monitor safety" },
+      { title: "Profile", url: createPageUrl("Profile"), icon: User, description: "Your profile" },
+      { title: "Report Builder", url: createPageUrl("ReportBuilder"), icon: FileText, description: "Custom reports" },
+      { title: "Team Challenges", url: createPageUrl("TeamChallenges"), icon: Swords, description: "Team challenges" },
+      { title: "API Manager", url: createPageUrl("APIManager"), icon: Code, description: "Manage APIs" }
     ]
   }
 ];
