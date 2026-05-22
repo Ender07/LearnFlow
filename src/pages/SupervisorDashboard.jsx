@@ -10,6 +10,7 @@ import TeamManagementView from '../components/supervisor/TeamManagementView';
 import LiveMonitoringView from '../components/supervisor/LiveMonitoringView';
 
 export default function SupervisorDashboard() {
+  const [activeTab, setActiveTab] = useState("attention");
   const { 
     currentUser, 
     allUserProgress, 
@@ -41,8 +42,6 @@ export default function SupervisorDashboard() {
     );
   }
   
-  const [activeTab, setActiveTab] = useState("attention");
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
       <div className="max-w-7xl mx-auto space-y-8">

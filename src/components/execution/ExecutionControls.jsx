@@ -26,6 +26,7 @@ export default function ExecutionControls({
   onNavigate
 }) {
   const isFirstStep = currentStep === 0;
+  const sessionStartTime = sessionActive ? true : null; // derive from sessionActive
 
   return (
     <div className="bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">

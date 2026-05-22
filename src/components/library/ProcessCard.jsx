@@ -90,7 +90,7 @@ export default function ProcessCard({ process, userProgress, viewMode = "grid", 
               <Play className="w-4 h-4 mr-2" />
               Start Training
             </Link>
-          </Link>
+          </Button>
         );
     }
   };
@@ -106,7 +106,7 @@ export default function ProcessCard({ process, userProgress, viewMode = "grid", 
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center text-white">
                   {getContentTypeIcon(process.content_type)}
                 </div>
                 <div className="flex-1">

@@ -16,7 +16,7 @@ export const SidebarProvider = ({ children }) => {
 export const useSidebar = () => useContext(SidebarContext);
 
 export const Sidebar = ({ children, className }) => {
-  const { isOpen } = useSidebar();
+  const { isOpen, setIsOpen } = useSidebar();
 
   return (
     <>
@@ -34,7 +34,7 @@ export const Sidebar = ({ children, className }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 z-40 md:hidden"
-              onClick={() => useSidebar().setIsOpen(false)}
+              onClick={() => setIsOpen(false)}
             />
             <motion.aside
               initial={{ x: "-100%" }}

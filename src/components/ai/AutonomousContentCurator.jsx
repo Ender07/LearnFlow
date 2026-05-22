@@ -303,15 +303,20 @@ export default function AutonomousContentCurator({
         }
       });
 
-      return interventions.interventions.map(intervention => ({
-        ...intervention,
-        target_users: getAffectedUsers(gap.affected_skill_areas),
-        generated_content: {
-          title: intervention.title,
-          content: intervention.content,
-          media_suggestions: await generateMediaSuggestions(intervention.title)
-        }
-      }));
+      const results = [];
+      for (const intervention of interventions.interventions) {
+        const media = await generateMediaSuggestions(intervention.title);
+        results.push({
+          ...intervention,
+          target_users: getAffectedUsers(gap.affected_skill_areas),
+          generated_content: {
+            title: intervention.title,
+            content: intervention.content,
+            media_suggestions: media
+          }
+        });
+      }
+      return results;
 
     } catch (error) {
       console.error('Error generating autonomous interventions:', error);

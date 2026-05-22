@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   BrainCircuit, 
   Lightbulb, 
