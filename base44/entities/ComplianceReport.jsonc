@@ -1,0 +1,78 @@
+{
+  "name": "ComplianceReport",
+  "type": "object",
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "training_completion",
+        "safety_compliance",
+        "data_access_audit",
+        "user_activity_summary",
+        "certification_status",
+        "security_events",
+        "system_usage_analytics"
+      ],
+      "description": "Type of compliance report"
+    },
+    "reporting_period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date of the reporting period"
+    },
+    "reporting_period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "End date of the reporting period"
+    },
+    "generated_for": {
+      "type": "string",
+      "description": "Organization or regulatory body the report is for"
+    },
+    "report_data": {
+      "type": "object",
+      "description": "Structured report data and metrics"
+    },
+    "summary_statistics": {
+      "type": "object",
+      "description": "Key summary statistics and KPIs"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "partial_compliance",
+        "non_compliant",
+        "under_review"
+      ],
+      "description": "Overall compliance status"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Compliance recommendations and action items"
+    },
+    "report_file_url": {
+      "type": "string",
+      "description": "URL to the generated report file"
+    },
+    "digital_signature": {
+      "type": "string",
+      "description": "Digital signature for report authenticity"
+    },
+    "regulatory_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Relevant regulatory standards and codes"
+    }
+  },
+  "required": [
+    "report_type",
+    "reporting_period_start",
+    "reporting_period_end"
+  ]
+}

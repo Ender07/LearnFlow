@@ -1,0 +1,70 @@
+{
+  "name": "BiometricSession",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "process_id": {
+      "type": "string"
+    },
+    "session_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "heart_rate_data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "bpm": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "eye_tracking_data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "fixation_duration": {
+            "type": "number"
+          },
+          "pupil_dilation": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "cognitive_load_assessment": {
+      "type": "object",
+      "properties": {
+        "overall_load": {
+          "type": "number"
+        },
+        "peak_load_moments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "user_id",
+    "process_id",
+    "session_start"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "GamificationLedger",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The ID of the user who earned points"
+    },
+    "points": {
+      "type": "number",
+      "description": "The number of points awarded"
+    },
+    "reason": {
+      "type": "string",
+      "description": "The reason for the points (e.g., Process Completion, Manual Award)"
+    },
+    "details": {
+      "type": "string",
+      "description": "Specific details of the achievement (e.g., Completed 'CNC Machine Setup')"
+    },
+    "related_entity_id": {
+      "type": "string",
+      "description": "The ID of the entity related to this event (e.g., process_id)"
+    }
+  },
+  "required": [
+    "user_id",
+    "points",
+    "reason"
+  ]
+}

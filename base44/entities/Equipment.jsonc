@@ -1,0 +1,87 @@
+{
+  "name": "Equipment",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Equipment name"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL of the equipment's image"
+    },
+    "model": {
+      "type": "string",
+      "description": "Equipment model number"
+    },
+    "manufacturer": {
+      "type": "string",
+      "description": "Equipment manufacturer"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "machinery",
+        "hand_tools",
+        "safety_equipment",
+        "measuring_instruments",
+        "lifting_equipment",
+        "cutting_tools",
+        "testing_equipment"
+      ],
+      "description": "Equipment category"
+    },
+    "location": {
+      "type": "string",
+      "description": "Equipment location in facility"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Equipment serial number"
+    },
+    "maintenance_schedule": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Scheduled maintenance intervals"
+    },
+    "operating_procedures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Related process IDs for operation"
+    },
+    "safety_protocols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety requirements for this equipment"
+    },
+    "three_d_model_url": {
+      "type": "string",
+      "description": "3D model file for AR/VR applications"
+    },
+    "calibration_data": {
+      "type": "object",
+      "description": "Equipment calibration information"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "operational",
+        "maintenance",
+        "repair",
+        "out_of_service"
+      ],
+      "default": "operational",
+      "description": "Current equipment status"
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}

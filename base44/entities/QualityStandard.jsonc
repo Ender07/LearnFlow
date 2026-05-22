@@ -1,0 +1,68 @@
+{
+  "name": "QualityStandard",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Quality standard title"
+    },
+    "standard_code": {
+      "type": "string",
+      "description": "Standard identification code"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "dimensional",
+        "visual",
+        "functional",
+        "safety",
+        "compliance",
+        "performance"
+      ],
+      "description": "Type of quality standard"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the standard"
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Specific criteria for acceptance"
+    },
+    "measurement_method": {
+      "type": "string",
+      "description": "How to measure or verify the standard"
+    },
+    "tools_required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tools needed for verification"
+    },
+    "tolerance_levels": {
+      "type": "object",
+      "description": "Acceptable tolerance ranges"
+    },
+    "related_processes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Process IDs where this standard applies"
+    },
+    "regulatory_reference": {
+      "type": "string",
+      "description": "External regulatory standard reference"
+    }
+  },
+  "required": [
+    "title",
+    "standard_code",
+    "category"
+  ]
+}

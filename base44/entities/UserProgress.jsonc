@@ -1,0 +1,139 @@
+{
+  "name": "UserProgress",
+  "type": "object",
+  "properties": {
+    "process_id": {
+      "type": "string",
+      "description": "ID of the process being tracked"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed",
+        "certified",
+        "expired",
+        "requires_recertification"
+      ],
+      "default": "not_started",
+      "description": "Progress status"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "description": "Percentage completed"
+    },
+    "current_step": {
+      "type": "number",
+      "default": 0,
+      "description": "Current step index"
+    },
+    "current_step_id": {
+      "type": "string",
+      "description": "Current step identifier"
+    },
+    "time_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Time spent in minutes"
+    },
+    "step_times": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Time spent on individual steps"
+    },
+    "quiz_score": {
+      "type": "number",
+      "description": "Quiz score if applicable"
+    },
+    "practical_score": {
+      "type": "number",
+      "description": "Hands-on assessment score"
+    },
+    "ar_interaction_data": {
+      "type": "object",
+      "description": "AR session performance metrics"
+    },
+    "vr_simulation_results": {
+      "type": "object",
+      "description": "VR training session results, including detailed interaction data",
+      "properties": {
+        "scenario_id": {
+          "type": "string"
+        },
+        "time_taken_seconds": {
+          "type": "number"
+        },
+        "hazards_identified": {
+          "type": "number"
+        },
+        "total_hazards": {
+          "type": "number"
+        },
+        "score": {
+          "type": "number"
+        },
+        "errors": {
+          "type": "number"
+        }
+      }
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the process was completed"
+    },
+    "certification_expiry": {
+      "type": "string",
+      "format": "date",
+      "description": "When certification expires"
+    },
+    "supervisor_approval": {
+      "type": "boolean",
+      "description": "Whether supervisor has approved completion"
+    },
+    "supervisor_notes": {
+      "type": "string",
+      "description": "Supervisor feedback and notes"
+    },
+    "quality_checkpoints_passed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Quality checkpoints successfully completed"
+    },
+    "errors_made": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Errors and mistakes during training"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes or feedback"
+    },
+    "assigned_by": {
+      "type": "string",
+      "description": "The ID of the supervisor who assigned this training"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "The due date for the assigned training"
+    },
+    "assignment_notes": {
+      "type": "string",
+      "description": "Notes from the supervisor about the assignment"
+    }
+  },
+  "required": [
+    "process_id"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "CognitiveProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User this cognitive profile belongs to"
+    },
+    "cognitive_capacity": {
+      "type": "object",
+      "properties": {
+        "working_memory": {
+          "type": "number"
+        },
+        "processing_speed": {
+          "type": "number"
+        },
+        "attention_span": {
+          "type": "number",
+          "description": "in minutes"
+        }
+      },
+      "description": "Assessed cognitive capabilities"
+    },
+    "learning_patterns": {
+      "type": "object",
+      "properties": {
+        "optimal_session_length": {
+          "type": "number"
+        },
+        "peak_performance_time": {
+          "type": "string",
+          "enum": [
+            "morning",
+            "afternoon",
+            "evening"
+          ]
+        },
+        "stress_response": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      },
+      "description": "Identified patterns in learning behavior and performance"
+    },
+    "adaptation_preferences": {
+      "type": "object",
+      "properties": {
+        "prefers_step_simplification": {
+          "type": "boolean"
+        },
+        "responds_to_encouragement": {
+          "type": "boolean"
+        },
+        "prefers_visual_aids": {
+          "type": "boolean"
+        }
+      },
+      "description": "How user responds to different adaptive interventions"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

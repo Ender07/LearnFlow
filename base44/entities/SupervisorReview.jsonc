@@ -1,0 +1,88 @@
+{
+  "name": "SupervisorReview",
+  "type": "object",
+  "properties": {
+    "user_progress_id": {
+      "type": "string",
+      "description": "Associated user progress record"
+    },
+    "process_id": {
+      "type": "string",
+      "description": "Process being reviewed"
+    },
+    "trainee_id": {
+      "type": "string",
+      "description": "ID of the trainee"
+    },
+    "supervisor_id": {
+      "type": "string",
+      "description": "ID of the reviewing supervisor"
+    },
+    "review_type": {
+      "type": "string",
+      "enum": [
+        "completion_approval",
+        "skill_assessment",
+        "safety_verification",
+        "quality_audit"
+      ],
+      "description": "Type of review"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "requires_remediation"
+      ],
+      "default": "pending",
+      "description": "Review outcome"
+    },
+    "competency_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Supervisor's competency rating (1-5)"
+    },
+    "safety_compliance": {
+      "type": "boolean",
+      "description": "Whether safety protocols were followed"
+    },
+    "quality_standards_met": {
+      "type": "boolean",
+      "description": "Whether quality standards were achieved"
+    },
+    "observations": {
+      "type": "string",
+      "description": "Supervisor's detailed observations"
+    },
+    "recommendations": {
+      "type": "string",
+      "description": "Recommendations for improvement"
+    },
+    "remediation_required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas requiring additional training"
+    },
+    "next_review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When next review is scheduled"
+    },
+    "digital_signature": {
+      "type": "string",
+      "description": "Supervisor's digital signature"
+    }
+  },
+  "required": [
+    "user_progress_id",
+    "process_id",
+    "trainee_id",
+    "supervisor_id",
+    "review_type"
+  ]
+}

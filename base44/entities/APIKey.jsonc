@@ -1,0 +1,72 @@
+{
+  "name": "APIKey",
+  "type": "object",
+  "properties": {
+    "key_name": {
+      "type": "string",
+      "description": "Human-readable name for the API key"
+    },
+    "api_key": {
+      "type": "string",
+      "description": "The actual API key (hashed for security)"
+    },
+    "key_prefix": {
+      "type": "string",
+      "description": "First few characters of the key for identification"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read_processes",
+          "write_processes",
+          "read_progress",
+          "write_progress",
+          "read_users",
+          "write_users",
+          "read_analytics",
+          "admin_access"
+        ]
+      },
+      "description": "Permissions granted to this API key"
+    },
+    "rate_limit": {
+      "type": "number",
+      "default": 1000,
+      "description": "Requests per hour limit"
+    },
+    "allowed_ips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IP addresses allowed to use this key"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the API key expires"
+    },
+    "last_used": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time this key was used"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of API calls made with this key"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the API key is currently active"
+    }
+  },
+  "required": [
+    "key_name",
+    "api_key",
+    "permissions"
+  ]
+}

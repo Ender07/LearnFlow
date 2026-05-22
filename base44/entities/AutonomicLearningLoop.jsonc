@@ -1,0 +1,150 @@
+{
+  "name": "AutonomicLearningLoop",
+  "type": "object",
+  "properties": {
+    "loop_id": {
+      "type": "string",
+      "description": "Unique identifier for this autonomic learning loop"
+    },
+    "trigger_source": {
+      "type": "string",
+      "enum": [
+        "operational_data",
+        "quality_deviation",
+        "equipment_anomaly",
+        "performance_metric",
+        "safety_incident",
+        "efficiency_drop"
+      ],
+      "description": "What triggered this learning loop activation"
+    },
+    "detected_gap": {
+      "type": "object",
+      "properties": {
+        "gap_type": {
+          "type": "string"
+        },
+        "affected_skill_areas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "severity_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "root_cause_analysis": {
+          "type": "object"
+        },
+        "impact_assessment": {
+          "type": "object"
+        }
+      },
+      "description": "Detailed analysis of the identified performance gap"
+    },
+    "auto_generated_interventions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "intervention_type": {
+            "type": "string",
+            "enum": [
+              "micro_learning",
+              "just_in_time_training",
+              "process_update",
+              "new_content_creation",
+              "skill_reinforcement"
+            ]
+          },
+          "target_users": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generated_content": {
+            "type": "object"
+          },
+          "delivery_method": {
+            "type": "string"
+          },
+          "urgency_score": {
+            "type": "number"
+          },
+          "estimated_effectiveness": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "AI-generated learning interventions to address the gap"
+    },
+    "deployment_status": {
+      "type": "string",
+      "enum": [
+        "analyzing",
+        "generating_content",
+        "human_review_required",
+        "deployed",
+        "measuring_impact"
+      ],
+      "default": "analyzing",
+      "description": "Current status of the autonomic loop"
+    },
+    "effectiveness_metrics": {
+      "type": "object",
+      "properties": {
+        "initial_performance_baseline": {
+          "type": "number"
+        },
+        "post_intervention_performance": {
+          "type": "number"
+        },
+        "improvement_percentage": {
+          "type": "number"
+        },
+        "user_engagement_rate": {
+          "type": "number"
+        },
+        "knowledge_retention_score": {
+          "type": "number"
+        }
+      },
+      "description": "Measured effectiveness of the interventions"
+    },
+    "learning_loop_optimization": {
+      "type": "object",
+      "properties": {
+        "algorithm_adjustments": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "content_generation_improvements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "delivery_timing_optimizations": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "description": "How the system optimized itself based on results"
+    }
+  },
+  "required": [
+    "loop_id",
+    "trigger_source"
+  ]
+}

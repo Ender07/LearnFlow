@@ -1,0 +1,206 @@
+{
+  "name": "DigitalTwin",
+  "type": "object",
+  "properties": {
+    "equipment_id": {
+      "type": "string",
+      "description": "ID of the physical equipment this twin represents"
+    },
+    "twin_name": {
+      "type": "string",
+      "description": "Human-readable name for the digital twin"
+    },
+    "model_type": {
+      "type": "string",
+      "enum": [
+        "machine_tool",
+        "assembly_line",
+        "conveyor_system",
+        "robotic_cell",
+        "quality_station",
+        "entire_workstation"
+      ],
+      "description": "Type of equipment being twinned"
+    },
+    "real_time_data_feeds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sensor_id": {
+            "type": "string"
+          },
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "temperature",
+              "pressure",
+              "vibration",
+              "speed",
+              "position",
+              "power_consumption",
+              "cycle_count"
+            ]
+          },
+          "current_value": {
+            "type": "number"
+          },
+          "unit_of_measure": {
+            "type": "string"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "normal_range": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          },
+          "alert_thresholds": {
+            "type": "object",
+            "properties": {
+              "warning": {
+                "type": "number"
+              },
+              "critical": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "description": "Live sensor data from the physical equipment"
+    },
+    "predictive_models": {
+      "type": "object",
+      "properties": {
+        "maintenance_predictions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "failure_risk_assessment": {
+          "type": "object"
+        },
+        "performance_optimization_suggestions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "wear_pattern_analysis": {
+          "type": "object"
+        }
+      },
+      "description": "AI-driven predictive analytics"
+    },
+    "ar_overlay_data": {
+      "type": "object",
+      "properties": {
+        "anchor_points": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "overlay_elements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "interaction_zones": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "safety_boundaries": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "description": "AR visualization configuration for the physical equipment"
+    },
+    "operational_state": {
+      "type": "object",
+      "properties": {
+        "current_status": {
+          "type": "string",
+          "enum": [
+            "running",
+            "idle",
+            "maintenance",
+            "error",
+            "setup"
+          ]
+        },
+        "production_count": {
+          "type": "number"
+        },
+        "efficiency_rating": {
+          "type": "number"
+        },
+        "last_maintenance": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "operator_assigned": {
+          "type": "string"
+        }
+      },
+      "description": "Current operational status of the equipment"
+    },
+    "training_scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenario_id": {
+            "type": "string"
+          },
+          "scenario_name": {
+            "type": "string"
+          },
+          "difficulty_level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced",
+              "expert"
+            ]
+          },
+          "simulated_conditions": {
+            "type": "object"
+          },
+          "learning_objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "success_criteria": {
+            "type": "object"
+          }
+        }
+      },
+      "description": "Available training scenarios using this digital twin"
+    }
+  },
+  "required": [
+    "equipment_id",
+    "twin_name",
+    "model_type"
+  ]
+}

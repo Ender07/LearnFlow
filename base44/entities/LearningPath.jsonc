@@ -1,0 +1,54 @@
+{
+  "name": "LearningPath",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Learning path title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Path description"
+    },
+    "target_role": {
+      "type": "string",
+      "enum": [
+        "new_hire",
+        "manager",
+        "specialist",
+        "executive",
+        "all"
+      ],
+      "description": "Target audience"
+    },
+    "process_sequence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ordered list of process IDs"
+    },
+    "estimated_total_duration": {
+      "type": "number",
+      "description": "Total estimated completion time in minutes"
+    },
+    "grants_certification_id": {
+      "type": "string",
+      "description": "The ID of the certification granted upon completion"
+    },
+    "certification_available": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether completion grants certification"
+    },
+    "badge_url": {
+      "type": "string",
+      "description": "URL to badge image"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "target_role"
+  ]
+}

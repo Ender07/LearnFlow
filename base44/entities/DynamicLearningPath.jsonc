@@ -1,0 +1,70 @@
+{
+  "name": "DynamicLearningPath",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User this dynamic path is for"
+    },
+    "current_objective": {
+      "type": "string",
+      "description": "Current learning objective or goal"
+    },
+    "generated_sequence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "process_id": {
+            "type": "string"
+          },
+          "sequence_order": {
+            "type": "number"
+          },
+          "ai_reasoning": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "completed",
+              "skipped"
+            ],
+            "default": "pending"
+          }
+        }
+      },
+      "description": "AI-generated sequence of processes tailored to the user"
+    },
+    "last_adaptation_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the path was last modified by AI"
+    },
+    "adaptation_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "adaptation_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "changes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "History of all adaptations made to this path"
+    }
+  },
+  "required": [
+    "user_id",
+    "current_objective"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "gamification_points": {
+      "type": "number",
+      "default": 0,
+      "description": "Total accumulated points for the user"
+    },
+    "gamification_level": {
+      "type": "number",
+      "default": 1,
+      "description": "The user's current level based on points"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "User's job title or role"
+    },
+    "supervisor_id": {
+      "type": "string",
+      "description": "The ID of the user's supervisor"
+    },
+    "department": {
+      "type": "string",
+      "description": "The user's department or team"
+    },
+    "earned_badges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of Badge IDs the user has earned."
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "URL to the user's custom profile picture"
+    },
+    "bio": {
+      "type": "string",
+      "description": "A short user biography or summary"
+    },
+    "notification_preferences": {
+      "type": "object",
+      "properties": {
+        "new_assignments": {
+          "type": "boolean",
+          "default": true
+        },
+        "knowledge_updates": {
+          "type": "boolean",
+          "default": true
+        },
+        "discussion_mentions": {
+          "type": "boolean",
+          "default": true
+        },
+        "gamification_awards": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "description": "User's preferences for receiving notifications"
+    }
+  },
+  "required": [
+    "job_title"
+  ]
+}

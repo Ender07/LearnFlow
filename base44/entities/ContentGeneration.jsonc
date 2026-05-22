@@ -1,0 +1,79 @@
+{
+  "name": "ContentGeneration",
+  "type": "object",
+  "properties": {
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "cad_file",
+        "manual_pdf",
+        "video_analysis",
+        "expert_knowledge",
+        "equipment_data"
+      ],
+      "description": "Type of source material"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "URL to source material"
+    },
+    "generated_content": {
+      "type": "object",
+      "description": "AI-generated training content"
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "AI confidence in generated content"
+    },
+    "human_review_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "modified"
+      ],
+      "default": "pending",
+      "description": "Human validation status"
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "process_steps",
+        "safety_warnings",
+        "quality_checkpoints",
+        "troubleshooting",
+        "ar_annotations"
+      ],
+      "description": "Type of content generated"
+    },
+    "target_audience": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "description": "Intended skill level"
+    },
+    "extraction_metadata": {
+      "type": "object",
+      "description": "Details about the extraction process"
+    },
+    "validation_feedback": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Feedback from subject matter experts"
+    }
+  },
+  "required": [
+    "source_type",
+    "source_url",
+    "content_type"
+  ]
+}

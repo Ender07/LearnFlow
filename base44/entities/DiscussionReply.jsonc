@@ -1,0 +1,49 @@
+{
+  "name": "DiscussionReply",
+  "type": "object",
+  "properties": {
+    "discussion_id": {
+      "type": "string",
+      "description": "The discussion this reply belongs to"
+    },
+    "reply_to_id": {
+      "type": "string",
+      "description": "ID of the message this is replying to (for threading)"
+    },
+    "content": {
+      "type": "string",
+      "description": "Reply content"
+    },
+    "media_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supporting media"
+    },
+    "is_solution": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this reply was marked as the solution"
+    },
+    "helpful_votes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of helpful votes received"
+    },
+    "contributor_expertise": {
+      "type": "string",
+      "enum": [
+        "novice",
+        "intermediate",
+        "expert",
+        "master"
+      ],
+      "description": "Expertise level of the person replying"
+    }
+  },
+  "required": [
+    "discussion_id",
+    "content"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "name": "HardwareIntegration",
+  "type": "object",
+  "properties": {
+    "device_name": {
+      "type": "string",
+      "description": "Name of the connected hardware device"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "iot_sensor",
+        "ar_headset",
+        "vr_headset",
+        "smart_glasses",
+        "tablet",
+        "industrial_scanner",
+        "safety_monitor",
+        "environmental_sensor"
+      ],
+      "description": "Type of hardware device"
+    },
+    "connection_protocol": {
+      "type": "string",
+      "enum": [
+        "wifi",
+        "bluetooth",
+        "usb",
+        "ethernet",
+        "serial"
+      ],
+      "description": "How the device connects to the system"
+    },
+    "device_id": {
+      "type": "string",
+      "description": "Unique identifier for the device"
+    },
+    "location": {
+      "type": "string",
+      "description": "Physical location of the device"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "online",
+        "offline",
+        "error",
+        "maintenance"
+      ],
+      "default": "offline",
+      "description": "Current device status"
+    },
+    "sensor_data": {
+      "type": "object",
+      "description": "Real-time sensor readings and data"
+    },
+    "calibration_data": {
+      "type": "object",
+      "description": "Device calibration parameters"
+    },
+    "last_maintenance": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When device was last maintained"
+    },
+    "firmware_version": {
+      "type": "string",
+      "description": "Current firmware version"
+    },
+    "associated_processes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Process IDs that use this hardware"
+    }
+  },
+  "required": [
+    "device_name",
+    "device_type",
+    "device_id"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "name": "Discussion",
+  "type": "object",
+  "properties": {
+    "process_id": {
+      "type": "string",
+      "description": "The process this discussion relates to"
+    },
+    "step_id": {
+      "type": "string",
+      "description": "Specific step if applicable"
+    },
+    "discussion_type": {
+      "type": "string",
+      "enum": [
+        "question",
+        "troubleshooting",
+        "improvement_idea",
+        "safety_concern",
+        "general"
+      ],
+      "description": "Type of discussion"
+    },
+    "title": {
+      "type": "string",
+      "description": "Discussion topic title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Initial discussion content or question"
+    },
+    "is_urgent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this requires immediate attention"
+    },
+    "is_resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the discussion has been resolved"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "ID of the person who provided the resolution"
+    },
+    "resolution_summary": {
+      "type": "string",
+      "description": "Summary of how the issue was resolved"
+    },
+    "participant_count": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of people participating in this discussion"
+    },
+    "last_activity": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the last response was posted"
+    },
+    "priority_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Calculated priority based on urgency, participants, and votes"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags"
+    }
+  },
+  "required": [
+    "process_id",
+    "discussion_type",
+    "title",
+    "content"
+  ]
+}

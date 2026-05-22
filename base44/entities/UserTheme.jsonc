@@ -1,0 +1,116 @@
+{
+  "name": "UserTheme",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User this theme belongs to"
+    },
+    "theme_name": {
+      "type": "string",
+      "description": "Name of the custom theme"
+    },
+    "color_scheme": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "string"
+        },
+        "secondary": {
+          "type": "string"
+        },
+        "accent": {
+          "type": "string"
+        },
+        "background": {
+          "type": "string"
+        },
+        "surface": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "description": "Custom color palette"
+    },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "font_family": {
+          "type": "string"
+        },
+        "font_size": {
+          "type": "string",
+          "enum": [
+            "small",
+            "medium",
+            "large",
+            "xl"
+          ]
+        },
+        "line_height": {
+          "type": "number"
+        }
+      },
+      "description": "Typography preferences"
+    },
+    "accessibility": {
+      "type": "object",
+      "properties": {
+        "high_contrast": {
+          "type": "boolean",
+          "default": false
+        },
+        "reduced_motion": {
+          "type": "boolean",
+          "default": false
+        },
+        "keyboard_navigation": {
+          "type": "boolean",
+          "default": true
+        },
+        "screen_reader_optimized": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "description": "Accessibility preferences"
+    },
+    "layout_preferences": {
+      "type": "object",
+      "properties": {
+        "sidebar_collapsed": {
+          "type": "boolean",
+          "default": false
+        },
+        "dashboard_layout": {
+          "type": "string",
+          "enum": [
+            "grid",
+            "list",
+            "cards"
+          ]
+        },
+        "animation_level": {
+          "type": "string",
+          "enum": [
+            "none",
+            "reduced",
+            "full"
+          ]
+        }
+      },
+      "description": "Layout and interaction preferences"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this theme is currently active"
+    }
+  },
+  "required": [
+    "user_id",
+    "theme_name"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "LearningAnalytics",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User being analyzed"
+    },
+    "learning_style": {
+      "type": "string",
+      "enum": [
+        "visual",
+        "auditory",
+        "kinesthetic",
+        "reading_writing",
+        "multimodal"
+      ],
+      "description": "Identified learning preference"
+    },
+    "skill_proficiency": {
+      "type": "object",
+      "description": "Current skill levels across different categories with timestamps"
+    },
+    "skill_decay_predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "skill_area": {
+            "type": "string"
+          },
+          "current_proficiency": {
+            "type": "number"
+          },
+          "predicted_decay_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "confidence_score": {
+            "type": "number"
+          },
+          "recommended_refresher_process": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "AI predictions for skill decay and recommended interventions"
+    },
+    "learning_velocity": {
+      "type": "number",
+      "description": "Rate of learning progression"
+    },
+    "knowledge_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Identified areas needing reinforcement"
+    },
+    "predicted_performance": {
+      "type": "object",
+      "description": "AI predictions for future training outcomes"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

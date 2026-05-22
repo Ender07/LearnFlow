@@ -1,0 +1,91 @@
+{
+  "name": "KnowledgeContribution",
+  "type": "object",
+  "properties": {
+    "process_id": {
+      "type": "string",
+      "description": "The process this contribution relates to"
+    },
+    "step_id": {
+      "type": "string",
+      "description": "Specific step if applicable"
+    },
+    "contribution_type": {
+      "type": "string",
+      "enum": [
+        "tip",
+        "best_practice",
+        "troubleshooting",
+        "safety_note",
+        "efficiency_improvement",
+        "quality_insight"
+      ],
+      "description": "Type of knowledge being shared"
+    },
+    "title": {
+      "type": "string",
+      "description": "Brief title of the contribution"
+    },
+    "content": {
+      "type": "string",
+      "description": "The actual knowledge or insight being shared"
+    },
+    "media_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supporting images, videos, or documents"
+    },
+    "contributor_expertise_level": {
+      "type": "string",
+      "enum": [
+        "novice",
+        "intermediate",
+        "expert",
+        "master"
+      ],
+      "description": "Self-reported expertise level of contributor"
+    },
+    "years_experience": {
+      "type": "number",
+      "description": "Years of experience in this area"
+    },
+    "validation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Community validation score (upvotes minus downvotes)"
+    },
+    "validation_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of validations received"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this contribution has been verified by a supervisor or expert"
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "ID of the person who verified this contribution"
+    },
+    "implementation_impact": {
+      "type": "object",
+      "description": "Measured impact of implementing this knowledge"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags for categorization"
+    }
+  },
+  "required": [
+    "process_id",
+    "contribution_type",
+    "title",
+    "content"
+  ]
+}

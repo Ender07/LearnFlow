@@ -1,0 +1,117 @@
+{
+  "name": "SystemIntegration",
+  "type": "object",
+  "properties": {
+    "integration_name": {
+      "type": "string",
+      "description": "Name of the integrated system"
+    },
+    "system_type": {
+      "type": "string",
+      "enum": [
+        "mes",
+        "erp",
+        "cad",
+        "plm",
+        "wms",
+        "qms",
+        "scada",
+        "cmms"
+      ],
+      "description": "Type of system being integrated"
+    },
+    "connection_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "error",
+        "pending"
+      ],
+      "default": "pending",
+      "description": "Current connection status"
+    },
+    "api_endpoint": {
+      "type": "string",
+      "description": "API endpoint URL"
+    },
+    "authentication_method": {
+      "type": "string",
+      "enum": [
+        "api_key",
+        "oauth",
+        "basic_auth",
+        "certificate"
+      ],
+      "description": "Authentication method used"
+    },
+    "data_sync_frequency": {
+      "type": "string",
+      "enum": [
+        "real_time",
+        "hourly",
+        "daily",
+        "weekly",
+        "manual"
+      ],
+      "default": "daily",
+      "description": "How often data is synchronized"
+    },
+    "sync_direction": {
+      "type": "string",
+      "enum": [
+        "bidirectional",
+        "inbound",
+        "outbound"
+      ],
+      "description": "Direction of data flow"
+    },
+    "mapped_fields": {
+      "type": "object",
+      "description": "Field mappings between systems"
+    },
+    "last_sync": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last successful synchronization"
+    },
+    "last_sync_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "in_progress"
+      ],
+      "description": "Status of the last sync attempt"
+    },
+    "error_log": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Integration error history"
+    },
+    "automation_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "trigger": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Automation rules based on this integration"
+    }
+  },
+  "required": [
+    "integration_name",
+    "system_type"
+  ]
+}

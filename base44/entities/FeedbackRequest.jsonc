@@ -1,0 +1,82 @@
+{
+  "name": "FeedbackRequest",
+  "type": "object",
+  "properties": {
+    "process_id": {
+      "type": "string",
+      "description": "Process being reviewed"
+    },
+    "step_id": {
+      "type": "string",
+      "description": "Specific step if applicable"
+    },
+    "feedback_type": {
+      "type": "string",
+      "enum": [
+        "clarity_issue",
+        "safety_concern",
+        "missing_information",
+        "outdated_content",
+        "suggestion",
+        "error_report"
+      ],
+      "description": "Type of feedback"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Urgency of the feedback"
+    },
+    "title": {
+      "type": "string",
+      "description": "Brief title of the feedback"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed feedback description"
+    },
+    "media_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supporting images or videos"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_review",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Current status"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Person responsible for review"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "description": "Notes on how feedback was addressed"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When feedback was resolved"
+    }
+  },
+  "required": [
+    "process_id",
+    "feedback_type",
+    "title",
+    "description"
+  ]
+}

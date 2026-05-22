@@ -1,0 +1,218 @@
+{
+  "name": "Process",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Process title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Process description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "safety",
+        "assembly",
+        "quality_control",
+        "maintenance",
+        "machine_setup",
+        "inspection",
+        "troubleshooting",
+        "compliance",
+        "emergency_procedures"
+      ],
+      "description": "Process category"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ],
+      "default": "beginner",
+      "description": "Difficulty level"
+    },
+    "estimated_duration": {
+      "type": "number",
+      "description": "Estimated completion time in minutes"
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "interactive",
+        "ar_guided",
+        "vr_simulation",
+        "video",
+        "document",
+        "quiz",
+        "checklist",
+        "mixed_reality"
+      ],
+      "description": "Type of content and delivery method"
+    },
+    "steps": {
+      "type": "array",
+      "description": "Process steps with enhanced capabilities",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "instruction_type": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "decision_point",
+              "quality_check",
+              "safety_critical",
+              "measurement",
+              "conditional"
+            ]
+          },
+          "media_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "three_d_model_url": {
+            "type": "string"
+          },
+          "ar_anchor_data": {
+            "type": "object"
+          },
+          "safety_warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "quality_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tools_required": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "time_limit": {
+            "type": "number"
+          },
+          "is_critical": {
+            "type": "boolean",
+            "default": false
+          },
+          "conditional_logic": {
+            "type": "object"
+          },
+          "next_step_conditions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required processes to complete first"
+    },
+    "grants_certification_id": {
+      "type": "string",
+      "description": "The ID of the certification granted upon completion"
+    },
+    "required_certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required certifications before attempting this process"
+    },
+    "safety_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety equipment and protocols required"
+    },
+    "quality_standards": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Quality benchmarks and acceptance criteria"
+    },
+    "equipment_needed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required machinery, tools, and equipment"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Process version for change tracking"
+    },
+    "compliance_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Regulatory compliance references"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the process is available to learners"
+    },
+    "requires_supervisor": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether supervisor oversight is required"
+    },
+    "hazard_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low",
+      "description": "Risk level of the process"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "category"
+  ]
+}

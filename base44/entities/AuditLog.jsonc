@@ -1,0 +1,96 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID of the user who performed the action"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "login",
+        "logout",
+        "process_started",
+        "process_completed",
+        "data_accessed",
+        "data_modified",
+        "permission_changed",
+        "system_configuration",
+        "export_data",
+        "delete_data",
+        "user_created",
+        "user_modified",
+        "compliance_event"
+      ],
+      "description": "Type of action performed"
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "process",
+        "user_progress",
+        "user_account",
+        "knowledge_contribution",
+        "equipment",
+        "certification",
+        "system_settings",
+        "audit_log",
+        "report"
+      ],
+      "description": "Type of resource affected"
+    },
+    "resource_id": {
+      "type": "string",
+      "description": "ID of the specific resource affected"
+    },
+    "action_details": {
+      "type": "object",
+      "description": "Detailed information about the action performed"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address from which the action was performed"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser/device information"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "User session identifier"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low",
+      "description": "Assessed risk level of the action"
+    },
+    "compliance_category": {
+      "type": "string",
+      "enum": [
+        "data_protection",
+        "safety_compliance",
+        "quality_assurance",
+        "training_records",
+        "access_control",
+        "system_security"
+      ],
+      "description": "Compliance category for regulatory reporting"
+    },
+    "additional_metadata": {
+      "type": "object",
+      "description": "Additional context and metadata"
+    }
+  },
+  "required": [
+    "user_id",
+    "action_type",
+    "resource_type"
+  ]
+}

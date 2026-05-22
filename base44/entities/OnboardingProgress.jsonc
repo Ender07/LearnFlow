@@ -1,0 +1,60 @@
+{
+  "name": "OnboardingProgress",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User going through onboarding"
+    },
+    "current_step": {
+      "type": "number",
+      "default": 0,
+      "description": "Current onboarding step (0-based)"
+    },
+    "completed_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of completed onboarding step IDs"
+    },
+    "skipped_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Steps the user chose to skip"
+    },
+    "onboarding_type": {
+      "type": "string",
+      "enum": [
+        "first_time",
+        "feature_introduction",
+        "role_specific"
+      ],
+      "description": "Type of onboarding flow"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage of onboarding completed"
+    },
+    "is_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether onboarding is fully completed"
+    },
+    "feedback": {
+      "type": "string",
+      "description": "User feedback on the onboarding experience"
+    },
+    "time_spent": {
+      "type": "number",
+      "description": "Total time spent in onboarding (minutes)"
+    }
+  },
+  "required": [
+    "user_id",
+    "onboarding_type"
+  ]
+}

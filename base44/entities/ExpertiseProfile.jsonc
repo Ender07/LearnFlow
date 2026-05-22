@@ -1,0 +1,68 @@
+{
+  "name": "ExpertiseProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The user this profile belongs to"
+    },
+    "skill_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas of expertise (tags from processes)"
+    },
+    "expertise_scores": {
+      "type": "object",
+      "description": "Scores for different skill areas based on contributions and validations"
+    },
+    "total_contributions": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of knowledge contributions made"
+    },
+    "verified_contributions": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of contributions that have been verified"
+    },
+    "helpful_responses": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of discussion responses marked as helpful"
+    },
+    "mentorship_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score based on helping others learn"
+    },
+    "recognition_badges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Earned badges for expertise and helpfulness"
+    },
+    "preferred_knowledge_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas where user wants to contribute knowledge"
+    },
+    "availability_for_mentoring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user is available to mentor others"
+    },
+    "last_contribution_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When user last contributed knowledge"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

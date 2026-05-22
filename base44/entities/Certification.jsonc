@@ -1,0 +1,49 @@
+{
+  "name": "Certification",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Title of the certification"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of what this certification represents"
+    },
+    "issuing_authority": {
+      "type": "string",
+      "default": "Internal",
+      "description": "The body that issues this certification (e.g., Internal, OSHA, ISO)"
+    },
+    "validity_period_months": {
+      "type": "number",
+      "description": "How many months the certification is valid for. Null for perpetual."
+    },
+    "badge_icon": {
+      "type": "string",
+      "description": "Name of a Lucide icon or URL to a custom badge image"
+    },
+    "required_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of LearningPath IDs required to earn this certification"
+    },
+    "required_processes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of individual Process IDs required to earn this certification"
+    },
+    "renewal_process_id": {
+      "type": "string",
+      "description": "The ID of the process required for recertification"
+    }
+  },
+  "required": [
+    "title",
+    "description"
+  ]
+}

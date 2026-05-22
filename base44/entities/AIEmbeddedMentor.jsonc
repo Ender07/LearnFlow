@@ -1,0 +1,145 @@
+{
+  "name": "AIEmbeddedMentor",
+  "type": "object",
+  "properties": {
+    "mentor_id": {
+      "type": "string",
+      "description": "Unique identifier for this AI mentor instance"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User this AI mentor is assigned to"
+    },
+    "mentor_persona": {
+      "type": "object",
+      "properties": {
+        "personality_traits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "communication_style": {
+          "type": "string",
+          "enum": [
+            "encouraging",
+            "direct",
+            "analytical",
+            "collaborative"
+          ]
+        },
+        "expertise_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "adaptability_level": {
+          "type": "number"
+        }
+      },
+      "description": "AI mentor's personality and communication characteristics"
+    },
+    "contextual_awareness": {
+      "type": "object",
+      "properties": {
+        "current_task_context": {
+          "type": "object"
+        },
+        "environmental_conditions": {
+          "type": "object"
+        },
+        "user_cognitive_state": {
+          "type": "object"
+        },
+        "equipment_status": {
+          "type": "object"
+        },
+        "safety_considerations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Real-time contextual awareness of the mentor"
+    },
+    "intervention_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "intervention_type": {
+            "type": "string"
+          },
+          "trigger_reason": {
+            "type": "string"
+          },
+          "content_delivered": {
+            "type": "string"
+          },
+          "user_response": {
+            "type": "object"
+          },
+          "effectiveness_score": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "History of mentor interventions and their effectiveness"
+    },
+    "learning_adaptation": {
+      "type": "object",
+      "properties": {
+        "user_preferences_learned": {
+          "type": "object"
+        },
+        "optimal_intervention_timing": {
+          "type": "object"
+        },
+        "successful_coaching_patterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "avoided_intervention_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "How the AI mentor has adapted to the specific user"
+    },
+    "federated_learning_contributions": {
+      "type": "object",
+      "properties": {
+        "insights_contributed": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "knowledge_received": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "privacy_preserved_data": {
+          "type": "object"
+        }
+      },
+      "description": "Contributions to and from federated learning network"
+    }
+  },
+  "required": [
+    "mentor_id",
+    "user_id"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "name": "SecurityEvent",
+  "type": "object",
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "failed_login_attempt",
+        "suspicious_activity",
+        "unauthorized_access_attempt",
+        "data_breach_attempt",
+        "unusual_download_pattern",
+        "multiple_failed_authentications",
+        "privilege_escalation_attempt",
+        "anomalous_behavior_pattern"
+      ],
+      "description": "Type of security event detected"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "description": "Severity level of the security event"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User ID associated with the event (if applicable)"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "Source IP address of the event"
+    },
+    "event_details": {
+      "type": "object",
+      "description": "Detailed information about the security event"
+    },
+    "detection_method": {
+      "type": "string",
+      "enum": [
+        "automated_system",
+        "user_report",
+        "manual_review",
+        "third_party_tool"
+      ],
+      "description": "How the event was detected"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "investigating",
+        "resolved",
+        "false_positive"
+      ],
+      "default": "open",
+      "description": "Current status of the security event"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Security team member assigned to investigate"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "description": "Notes on how the event was resolved"
+    },
+    "automated_response": {
+      "type": "object",
+      "description": "Automated security responses triggered"
+    }
+  },
+  "required": [
+    "event_type",
+    "severity"
+  ]
+}

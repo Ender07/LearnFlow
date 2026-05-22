@@ -1,0 +1,147 @@
+{
+  "name": "KnowledgeGraph",
+  "type": "object",
+  "properties": {
+    "graph_id": {
+      "type": "string",
+      "description": "Unique identifier for this knowledge graph"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "skill",
+              "task",
+              "equipment",
+              "process",
+              "product",
+              "market_demand",
+              "technology"
+            ]
+          },
+          "node_data": {
+            "type": "object"
+          },
+          "confidence_score": {
+            "type": "number"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Individual nodes in the knowledge graph"
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "relationship_id": {
+            "type": "string"
+          },
+          "source_node": {
+            "type": "string"
+          },
+          "target_node": {
+            "type": "string"
+          },
+          "relationship_type": {
+            "type": "string",
+            "enum": [
+              "requires",
+              "enables",
+              "depends_on",
+              "produces",
+              "optimizes",
+              "predicts"
+            ]
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "contextual_metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "description": "Connections between nodes"
+    },
+    "reasoning_paths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path_id": {
+            "type": "string"
+          },
+          "start_node": {
+            "type": "string"
+          },
+          "end_node": {
+            "type": "string"
+          },
+          "intermediate_nodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reasoning_confidence": {
+            "type": "number"
+          },
+          "predicted_outcomes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "description": "AI reasoning paths through the knowledge graph"
+    },
+    "predictive_insights": {
+      "type": "object",
+      "properties": {
+        "future_skill_demands": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "emerging_technology_impacts": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "workforce_evolution_predictions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "obsolescence_warnings": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "description": "Predictive insights generated from graph analysis"
+    }
+  },
+  "required": [
+    "graph_id"
+  ]
+}

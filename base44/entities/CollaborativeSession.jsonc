@@ -1,0 +1,80 @@
+{
+  "name": "CollaborativeSession",
+  "type": "object",
+  "properties": {
+    "session_name": {
+      "type": "string",
+      "description": "Name of the collaborative session"
+    },
+    "process_id": {
+      "type": "string",
+      "description": "Process being trained in the session"
+    },
+    "host_id": {
+      "type": "string",
+      "description": "The user ID of the session host"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "trainee",
+              "mentor",
+              "observer"
+            ]
+          }
+        }
+      },
+      "description": "List of participants in the session"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "waiting",
+        "in_progress",
+        "completed",
+        "archived"
+      ],
+      "default": "waiting"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Chat and event log for the session"
+    }
+  },
+  "required": [
+    "session_name",
+    "process_id",
+    "host_id"
+  ]
+}

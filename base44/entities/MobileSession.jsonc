@@ -1,0 +1,91 @@
+{
+  "name": "MobileSession",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User who initiated the mobile session"
+    },
+    "device_info": {
+      "type": "object",
+      "properties": {
+        "device_type": {
+          "type": "string"
+        },
+        "os_version": {
+          "type": "string"
+        },
+        "app_version": {
+          "type": "string"
+        },
+        "device_id": {
+          "type": "string"
+        }
+      },
+      "description": "Mobile device information"
+    },
+    "session_type": {
+      "type": "string",
+      "enum": [
+        "offline_sync",
+        "ar_session",
+        "process_completion",
+        "content_download"
+      ],
+      "description": "Type of mobile session"
+    },
+    "offline_data": {
+      "type": "object",
+      "description": "Data synchronized for offline use"
+    },
+    "sync_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Status of data synchronization"
+    },
+    "last_sync_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When data was last synchronized"
+    },
+    "network_quality": {
+      "type": "string",
+      "enum": [
+        "excellent",
+        "good",
+        "poor",
+        "offline"
+      ],
+      "description": "Network connection quality during session"
+    },
+    "battery_level": {
+      "type": "number",
+      "description": "Device battery level at session start"
+    },
+    "location_data": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        },
+        "accuracy": {
+          "type": "number"
+        }
+      },
+      "description": "GPS location if available and permitted"
+    }
+  },
+  "required": [
+    "user_id",
+    "session_type"
+  ]
+}

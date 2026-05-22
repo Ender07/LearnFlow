@@ -1,0 +1,39 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The ID of the user to notify"
+    },
+    "message": {
+      "type": "string",
+      "description": "The content of the notification"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "info",
+        "success",
+        "warning",
+        "danger"
+      ],
+      "default": "info",
+      "description": "The type of notification for styling"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has read the notification"
+    },
+    "link_url": {
+      "type": "string",
+      "description": "A URL to navigate to when the notification is clicked"
+    }
+  },
+  "required": [
+    "user_id",
+    "message",
+    "type"
+  ]
+}

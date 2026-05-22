@@ -1,0 +1,69 @@
+{
+  "name": "ARSession",
+  "type": "object",
+  "properties": {
+    "process_id": {
+      "type": "string",
+      "description": "Associated process ID"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User conducting the AR session"
+    },
+    "device_type": {
+      "type": "string",
+      "description": "AR device model used"
+    },
+    "session_duration": {
+      "type": "number",
+      "description": "Total session time in minutes"
+    },
+    "steps_completed": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Steps completed with timing and accuracy"
+    },
+    "interaction_points": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Points where user interacted with AR elements"
+    },
+    "accuracy_metrics": {
+      "type": "object",
+      "description": "Precision and accuracy measurements"
+    },
+    "errors_detected": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Errors caught during AR guidance"
+    },
+    "completion_status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "incomplete",
+        "aborted",
+        "failed"
+      ],
+      "description": "How the session ended"
+    },
+    "supervisor_present": {
+      "type": "boolean",
+      "description": "Whether supervision was provided"
+    },
+    "environmental_conditions": {
+      "type": "object",
+      "description": "Lighting, noise, and other factors"
+    }
+  },
+  "required": [
+    "process_id",
+    "user_id"
+  ]
+}
