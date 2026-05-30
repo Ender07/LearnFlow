@@ -27,6 +27,7 @@ import {
   Code
 } from "lucide-react";
 import { DataProvider } from "@/components/providers/DataProvider";
+import { GamificationProvider } from "@/components/gamification/GamificationEngine";
 import EnhancedErrorBoundary from "@/components/common/EnhancedErrorBoundary";
 import { ToastProvider } from "@/components/common/Toast";
 
@@ -116,6 +117,7 @@ function AppLayout({ children, currentPageName }) {
     <EnhancedErrorBoundary fallbackMessage="The LearnFlow dashboard encountered an error. Please try refreshing the page.">
       <SidebarProvider>
         <ToastProvider>
+          <GamificationProvider>
           <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
             <Sidebar className="border-r border-white/20 backdrop-blur-xl bg-white/90" data-sidebar>
               <SidebarHeader className="border-b border-white/10 p-6">
@@ -198,6 +200,7 @@ function AppLayout({ children, currentPageName }) {
               </main>
             </div>
           </div>
+          </GamificationProvider>
         </ToastProvider>
       </SidebarProvider>
     </EnhancedErrorBoundary>
