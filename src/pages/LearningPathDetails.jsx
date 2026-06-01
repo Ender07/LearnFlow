@@ -82,8 +82,12 @@ export default function LearningPathDetails() {
       }
 
       if (pathData.grants_certification_id) {
-        const certData = await Certification.get(pathData.grants_certification_id);
-        setCertification(certData);
+        try {
+          const certData = await Certification.get(pathData.grants_certification_id);
+          setCertification(certData);
+        } catch {
+          // certification ID may be a placeholder — ignore
+        }
       }
     } catch (e) {
       console.error("Failed to load learning path details:", e);
