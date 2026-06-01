@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLocation, Link } from 'react-router-dom';
 import { Process, UserProgress, KnowledgeContribution, Discussion } from '@/entities/all';
 import { useGamification } from '@/components/gamification/GamificationEngine';
@@ -21,6 +21,7 @@ export default function ProcessExecution() {
   const urlParams = new URLSearchParams(location.search);
   const processId = urlParams.get('id');
 
+  const navigate = useNavigate();
   const { awardPoints, pointAwards } = useGamification();
   const { currentUser, refetchData } = useData();
 
@@ -30,13 +31,19 @@ export default function ProcessExecution() {
   const [contributions, setContributions] = useState([]);
   const [discussions, setDiscussions] = useState([]);
 
+  const [allProcesses, setAllProcesses] = useState([]);
+  const [isLoadingProcesses, setIsLoadingProcesses] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!processId) {
-      setError("No process ID provided.");
       setIsLoading(false);
+      setIsLoadingProcesses(true);
+      Process.list().then(data => {
+        setAllProcesses(data || []);
+        setIsLoadingProcesses(false);
+      });
       return;
     }
     loadData();
@@ -153,6 +160,37 @@ export default function ProcessExecution() {
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-64 w-full" />
         <Skeleton className="h-12 w-full" />
+      </div>
+    );
+  }
+
+  // No process selected — show picker
+  if (!processId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Process Execution</h1>
+          <p className="text-slate-500 mb-8">Select a process to begin.</p>
+          {isLoadingProcesses ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allProcesses.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => navigate(`/ProcessExecution?id=${p.id}`)}
+                  className="text-left p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-400 transition-all group"
+                >
+                  <div className="font-semibold text-slate-800 group-hover:text-blue-600 mb-1">{p.title}</div>
+                  <div className="text-sm text-slate-500 line-clamp-2">{p.description}</div>
+                  <div className="mt-3 text-xs text-slate-400 capitalize">{p.category} · {p.difficulty_level}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
