@@ -25,6 +25,7 @@ export default function ExecutionControls({
   onReset,
   onNavigate
 }) {
+  const safeCompletedSteps = completedSteps instanceof Set ? completedSteps : new Set();
   const isFirstStep = currentStep === 0;
   const sessionStartTime = sessionActive ? true : null; // derive from sessionActive
 
@@ -45,7 +46,7 @@ export default function ExecutionControls({
           </Button>
           <Button
             onClick={() => onNavigate('next')}
-            disabled={isLastStep || !completedSteps.has(currentStep)}
+            disabled={isLastStep || !safeCompletedSteps.has(currentStep)}
             variant="outline"
             className="flex items-center gap-2"
             aria-label="Next step"
@@ -79,15 +80,15 @@ export default function ExecutionControls({
             <Button
               onClick={onComplete}
               size="lg"
-              disabled={completedSteps.has(currentStep)}
+              disabled={safeCompletedSteps.has(currentStep)}
               className={cn(
                 "bg-gradient-to-r text-white shadow-lg hover:shadow-xl transition-shadow",
-                completedSteps.has(currentStep) 
+                safeCompletedSteps.has(currentStep) 
                   ? "from-slate-400 to-slate-500" 
                   : "from-green-500 to-emerald-600"
               )}
             >
-              {completedSteps.has(currentStep) ? (
+              {safeCompletedSteps.has(currentStep) ? (
                 <>
                   <Check className="w-5 h-5 mr-2" /> Completed
                 </>
