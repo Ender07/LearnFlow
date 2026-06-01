@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLocation, Link } from 'react-router-dom';
 import { LearningPath, Process, Certification } from '@/entities/all';
 import { createPageUrl } from '@/utils';
@@ -17,7 +18,10 @@ export default function LearningPathDetails() {
   const urlParams = new URLSearchParams(location.search);
   const pathId = urlParams.get('id');
 
+  const navigate = useNavigate();
   const { userProgress: allUserProgress } = useData();
+  const [allPaths, setAllPaths] = useState([]);
+  const [isLoadingPaths, setIsLoadingPaths] = useState(false);
 
   const [path, setPath] = useState(null);
   const [processes, setProcesses] = useState([]);
@@ -33,8 +37,12 @@ export default function LearningPathDetails() {
 
   useEffect(() => {
     if (!pathId) {
-      setError("No Learning Path ID provided.");
       setIsLoading(false);
+      setIsLoadingPaths(true);
+      LearningPath.list().then(data => {
+        setAllPaths(data || []);
+        setIsLoadingPaths(false);
+      });
       return;
     }
     loadPathDetails();
@@ -115,6 +123,37 @@ export default function LearningPathDetails() {
       <div className="p-6 max-w-4xl mx-auto space-y-6">
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  // No path selected — show picker
+  if (!pathId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Learning Path Details</h1>
+          <p className="text-slate-500 mb-8">Select a learning path to view its details.</p>
+          {isLoadingPaths ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allPaths.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => navigate(`/LearningPathDetails?id=${p.id}`)}
+                  className="text-left p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all group"
+                >
+                  <div className="font-semibold text-slate-800 group-hover:text-indigo-600 mb-1">{p.title}</div>
+                  <div className="text-sm text-slate-500 line-clamp-2">{p.description}</div>
+                  <div className="mt-3 text-xs text-slate-400 capitalize">{p.target_role?.replace('_', ' ')} · {p.estimated_total_duration} min</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
