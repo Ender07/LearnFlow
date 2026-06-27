@@ -134,13 +134,13 @@ export default function LearningPathDetails() {
   // No path selected — show picker
   if (!pathId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
+      <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Learning Path Details</h1>
-          <p className="text-slate-500 mb-8">Select a learning path to view its details.</p>
+          <h1 className="text-2xl font-bold text-white mb-1">Learning Path Details</h1>
+          <p className="text-slate-400 mb-6 text-sm">Select a learning path to view its details.</p>
           {isLoadingPaths ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
+              {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full bg-slate-700" />)}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -148,11 +148,11 @@ export default function LearningPathDetails() {
                 <button
                   key={p.id}
                   onClick={() => navigate(`/LearningPathDetails?id=${p.id}`)}
-                  className="text-left p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all group"
+                  className="text-left p-5 bg-[#1a2540] rounded-2xl border border-slate-700 hover:border-purple-500/50 transition-all group"
                 >
-                  <div className="font-semibold text-slate-800 group-hover:text-indigo-600 mb-1">{p.title}</div>
-                  <div className="text-sm text-slate-500 line-clamp-2">{p.description}</div>
-                  <div className="mt-3 text-xs text-slate-400 capitalize">{p.target_role?.replace('_', ' ')} · {p.estimated_total_duration} min</div>
+                  <div className="font-semibold text-white group-hover:text-purple-400 mb-1">{p.title}</div>
+                  <div className="text-sm text-slate-400 line-clamp-2">{p.description}</div>
+                  <div className="mt-3 text-xs text-slate-500 capitalize">{p.target_role?.replace('_', ' ')} · {p.estimated_total_duration} min</div>
                 </button>
               ))}
             </div>
@@ -188,23 +188,23 @@ export default function LearningPathDetails() {
   const { text, icon: Icon, link, className } = getButtonState();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50/40 p-6">
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
       <div className="max-w-4xl mx-auto">
-        <Link to={createPageUrl('LearningPaths')} className="inline-flex items-center text-sm text-slate-600 hover:text-indigo-600 mb-4">
+        <Link to={createPageUrl('LearningPaths')} className="inline-flex items-center text-sm text-slate-400 hover:text-purple-400 mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to all Learning Paths
         </Link>
 
         {/* Header Card */}
-        <Card className="mb-8 border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+        <Card className="mb-6 bg-[#1a2540] border border-slate-700/50">
           <CardHeader>
             <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-3xl font-bold text-slate-800 mb-2">{path.title}</CardTitle>
-                <p className="text-slate-600 max-w-prose">{path.description}</p>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-2xl font-bold text-white mb-2">{path.title}</CardTitle>
+                <p className="text-slate-400 max-w-prose text-sm">{path.description}</p>
               </div>
               {certification && (
-                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 py-2 px-4">
+                <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 py-2 px-3 ml-4 flex-shrink-0">
                   <Award className="w-4 h-4 mr-2" />
                   Grants Certification
                 </Badge>
@@ -212,22 +212,24 @@ export default function LearningPathDetails() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex gap-6 text-slate-500">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <div className="flex gap-4 text-slate-400 text-sm">
                 <span className="flex items-center gap-1"><Users className="w-4 h-4" /> {processes.length} Processes</span>
-                <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {path.estimated_total_duration} min</span>
-                <span className="flex items-center gap-1"><Badge variant="outline" className="capitalize">{path.target_role?.replace('_', ' ')}</Badge></span>
+                <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {path.estimated_total_duration || '?'} min</span>
+                <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 capitalize">{path.target_role?.replace('_', ' ')}</Badge>
               </div>
-              <Button asChild size="lg" className={className}>
-                <Link to={link}><Icon className="w-5 h-5 mr-2" />{text}</Link>
+              <Button asChild size="default" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Link to={link}>
+                  <Route className="w-4 h-4 mr-2" />{text}
+                </Link>
               </Button>
             </div>
             <div>
-              <div className="flex justify-between text-sm text-slate-600 mb-1">
+              <div className="flex justify-between text-sm text-slate-400 mb-1">
                 <span>Progress</span>
                 <span>{Math.round(pathProgress.progressPercentage)}%</span>
               </div>
-              <Progress value={pathProgress.progressPercentage} />
+              <Progress value={pathProgress.progressPercentage} className="h-2 bg-slate-700" />
               <div className="text-xs text-slate-500 mt-1">
                 {pathProgress.completedCount} of {processes.length} processes completed
               </div>

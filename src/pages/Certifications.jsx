@@ -1,352 +1,167 @@
-import React, { useState, useMemo } from "react";
-import { useData } from "@/components/providers/DataProvider";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { 
-  Award, 
-  Search, 
-  Shield, 
-  Calendar,
-  CheckCircle,
-  Clock,
-  Target,
-  Plus
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-
-import MyCertificationCard from "../components/certification/MyCertificationCard";
-import AvailableCertificationCard from "../components/certification/AvailableCertificationCard";
-import CertificationForm from "../components/certification/CertificationForm";
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { useData } from '@/components/providers/DataProvider';
+import { createPageUrl } from '@/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Award, Search, Shield, Clock, CheckCircle2, Lock, ChevronRight, Download } from 'lucide-react';
 
 export default function Certifications() {
-  const { 
-    certifications, 
-    userProgress, 
-    learningPaths,
-    processes,
-    currentUser,
-    users,
-    isLoading 
-  } = useData();
+  const { certifications, userProgress, isLoading } = useData();
+  const [search, setSearch] = useState('');
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("my_certifications");
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const completedProcessIds = useMemo(() =>
+    new Set(userProgress.filter(p => p.status === 'completed').map(p => p.process_id)),
+    [userProgress]
+  );
 
-  const isAdmin = currentUser?.role === 'admin';
-
-  // Calculate user's certification progress
-  const myCertifications = useMemo(() => {
-    if (!certifications || !userProgress || !learningPaths || !processes) return [];
-
-    return certifications.map(cert => {
-      // Check if earned through learning paths
-      let isEarnedViaPath = false;
-      let progressPercentage = 0;
-      let completedRequirements = 0;
-      let totalRequirements = 0;
-
-      if (cert.required_paths?.length > 0) {
-        cert.required_paths.forEach(pathId => {
-          const path = learningPaths.find(p => p.id === pathId);
-          if (path?.process_sequence) {
-            const pathProcesses = path.process_sequence.length;
-            const completedInPath = path.process_sequence.filter(processId =>
-              userProgress.some(up => up.process_id === processId && up.status === 'completed')
-            ).length;
-            
-            totalRequirements += pathProcesses;
-            completedRequirements += completedInPath;
-            
-            if (completedInPath === pathProcesses && pathProcesses > 0) {
-              isEarnedViaPath = true;
-            }
-          }
-        });
-      }
-
-      // Check if earned through individual processes
-      let isEarnedViaProcesses = false;
-      if (cert.required_processes?.length > 0) {
-        const completedProcesses = cert.required_processes.filter(processId =>
-          userProgress.some(up => up.process_id === processId && up.status === 'completed')
-        ).length;
-        
-        totalRequirements += cert.required_processes.length;
-        completedRequirements += completedProcesses;
-        
-        if (completedProcesses === cert.required_processes.length) {
-          isEarnedViaProcesses = true;
-        }
-      }
-
-      progressPercentage = totalRequirements > 0 ? (completedRequirements / totalRequirements) * 100 : 0;
-      const isEarned = isEarnedViaPath || isEarnedViaProcesses;
-      
-      // Calculate expiry status
-      let expiryStatus = 'active';
-      let daysUntilExpiry = null;
-      
-      if (isEarned && cert.validity_period_months) {
-        // For demo purposes, assume earned 6 months ago
-        const earnedDate = new Date();
-        earnedDate.setMonth(earnedDate.getMonth() - 6);
-        const expiryDate = new Date(earnedDate);
-        expiryDate.setMonth(expiryDate.getMonth() + cert.validity_period_months);
-        
-        daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
-        
-        if (daysUntilExpiry <= 0) {
-          expiryStatus = 'expired';
-        } else if (daysUntilExpiry <= 30) {
-          expiryStatus = 'expiring_soon';
-        }
-      }
-
-      return {
-        ...cert,
-        isEarned,
-        progressPercentage,
-        completedRequirements,
-        totalRequirements,
-        expiryStatus,
-        daysUntilExpiry,
-        earnedDate: isEarned ? new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000) : null
-      };
+  const certsWithStatus = useMemo(() => {
+    return certifications.filter(c => c.title?.toLowerCase().includes(search.toLowerCase())).map(cert => {
+      const requiredProcs = cert.required_processes || [];
+      const earned = requiredProcs.length === 0 || requiredProcs.every(id => completedProcessIds.has(id));
+      const progress = requiredProcs.length > 0
+        ? Math.round((requiredProcs.filter(id => completedProcessIds.has(id)).length / requiredProcs.length) * 100)
+        : 0;
+      return { ...cert, earned, progress };
     });
-  }, [certifications, userProgress, learningPaths, processes]);
+  }, [certifications, completedProcessIds, search]);
 
-  // Filter certifications
-  const filteredCertifications = useMemo(() => {
-    if (!myCertifications) return [];
-    
-    let filtered = myCertifications;
-    
-    if (searchTerm) {
-      filtered = filtered.filter(cert =>
-        cert.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cert.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cert.issuing_authority?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  const earned = certsWithStatus.filter(c => c.earned);
+  const notYet = certsWithStatus.filter(c => !c.earned);
 
-    // Tab-specific filtering
-    switch (activeTab) {
-      case 'earned':
-        return filtered.filter(cert => cert.isEarned);
-      case 'in_progress':
-        return filtered.filter(cert => !cert.isEarned && cert.progressPercentage > 0);
-      case 'available':
-        return filtered.filter(cert => !cert.isEarned && cert.progressPercentage === 0);
-      case 'expiring':
-        return filtered.filter(cert => cert.isEarned && cert.expiryStatus === 'expiring_soon');
-      default:
-        return filtered;
-    }
-  }, [myCertifications, searchTerm, activeTab]);
-
-  // Calculate statistics
-  const stats = useMemo(() => {
-    const earned = myCertifications.filter(c => c.isEarned).length;
-    const inProgress = myCertifications.filter(c => !c.isEarned && c.progressPercentage > 0).length;
-    const expiringSoon = myCertifications.filter(c => c.expiryStatus === 'expiring_soon').length;
-    const total = myCertifications.length;
-
-    return { earned, inProgress, expiringSoon, total };
-  }, [myCertifications]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <Skeleton className="h-12 w-64" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-64" />)}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className="min-h-screen bg-[#0f1729] p-6 space-y-4">
+      {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-40 bg-slate-700 rounded-xl" />)}
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
-        >
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center">
-                <Award className="w-6 h-6 text-white" />
+            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center">
+                <Award className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-yellow-800 to-orange-800 bg-clip-text text-transparent">
-                Certifications
-              </h1>
-            </div>
-            <p className="text-slate-600 text-lg max-w-2xl">
-              Track your professional credentials and skill certifications. Build expertise that matters.
-            </p>
+              Certifications
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm">{earned.length} earned · {notYet.length} available to earn</p>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Button asChild variant="outline">
-              <Link to={createPageUrl('BlockchainCredentials')}>
-                <Shield className="w-4 h-4 mr-2" />
-                Blockchain Credentials
-              </Link>
-            </Button>
-            {isAdmin && (
-              <Button onClick={() => setShowCreateForm(true)} className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Certification
-              </Button>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Statistics Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6"
-        >
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600">{stats.earned}</div>
-              <div className="text-sm text-slate-600 mt-1">Earned</div>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-blue-600">{stats.inProgress}</div>
-              <div className="text-sm text-slate-600 mt-1">In Progress</div>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-orange-600">{stats.expiringSoon}</div>
-              <div className="text-sm text-slate-600 mt-1">Expiring Soon</div>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-purple-600">{stats.total}</div>
-              <div className="text-sm text-slate-600 mt-1">Available</div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Search */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <Input
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search certifications..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-12 text-base border-slate-200 focus:border-yellow-400 transition-colors"
-            />
+              className="pl-10 w-72 bg-[#1a2540] border-slate-600 text-white placeholder:text-slate-500" />
           </div>
-        </motion.div>
+        </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="my_certifications" className="flex items-center gap-2">
-              <Award className="w-4 h-4" />
-              All
-            </TabsTrigger>
-            <TabsTrigger value="earned" className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Earned
-            </TabsTrigger>
-            <TabsTrigger value="in_progress" className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              In Progress
-            </TabsTrigger>
-            <TabsTrigger value="available" className="flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              Available
-            </TabsTrigger>
-            <TabsTrigger value="expiring" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Expiring
-            </TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="bg-gradient-to-br from-amber-600/20 to-orange-600/20 border border-amber-500/30">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-amber-400">{earned.length}</div>
+              <div className="text-xs text-slate-400 mt-1">Earned</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-blue-400">{notYet.length}</div>
+              <div className="text-xs text-slate-400 mt-1">Available</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-slate-400">{certifications.length}</div>
+              <div className="text-xs text-slate-400 mt-1">Total</div>
+            </CardContent>
+          </Card>
+        </div>
 
-          <TabsContent value={activeTab} className="mt-8">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              {filteredCertifications.length === 0 ? (
-                <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-                  <CardContent className="p-12 text-center">
-                    <Award className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-700 mb-2">No certifications found</h3>
-                    <p className="text-slate-500 max-w-md mx-auto">
-                      {searchTerm
-                        ? "Try adjusting your search criteria."
-                        : activeTab === 'earned'
-                        ? "You haven't earned any certifications yet. Start a learning path to work toward your first certification!"
-                        : "No certifications match the current filter."
-                      }
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <AnimatePresence>
-                    {filteredCertifications.map((certification, index) => (
-                      certification.isEarned ? (
-                        <MyCertificationCard
-                          key={certification.id}
-                          certification={certification}
-                          index={index}
-                        />
-                      ) : (
-                        <AvailableCertificationCard
-                          key={certification.id}
-                          certification={certification}
-                          index={index}
-                          learningPaths={learningPaths}
-                          processes={processes}
-                        />
-                      )
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-            </motion.div>
-          </TabsContent>
-        </Tabs>
+        {earned.length > 0 && (
+          <div>
+            <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Earned Certifications
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {earned.map(cert => <CertCard key={cert.id} cert={cert} earned={true} />)}
+            </div>
+          </div>
+        )}
 
-        {/* Create Certification Modal */}
-        <AnimatePresence>
-          {showCreateForm && (
-            <CertificationForm
-              onClose={() => setShowCreateForm(false)}
-              learningPaths={learningPaths}
-              processes={processes}
-            />
-          )}
-        </AnimatePresence>
+        {notYet.length > 0 && (
+          <div>
+            <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-slate-400" /> Available to Earn
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {notYet.map(cert => <CertCard key={cert.id} cert={cert} earned={false} />)}
+            </div>
+          </div>
+        )}
+
+        {certsWithStatus.length === 0 && (
+          <div className="text-center py-16">
+            <Award className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+            <h3 className="text-white font-semibold text-lg mb-1">No certifications found</h3>
+            <p className="text-slate-400 text-sm">{search ? 'Try a different search term' : 'Certifications will appear here once created'}</p>
+            <Link to={createPageUrl('LearningPaths')}>
+              <Button className="mt-4 bg-amber-600 hover:bg-amber-700 text-white">Browse Learning Paths</Button>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+function CertCard({ cert, earned }) {
+  return (
+    <Card className={`border ${earned ? 'bg-gradient-to-br from-amber-600/10 to-orange-600/10 border-amber-500/30' : 'bg-[#1a2540] border-slate-700/50'}`}>
+      <CardContent className="p-5">
+        <div className="flex items-start gap-4">
+          <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${earned ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-slate-700'}`}>
+            <Award className={`w-7 h-7 ${earned ? 'text-white' : 'text-slate-500'}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="text-white font-bold text-sm">{cert.title}</h3>
+              {earned && <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />}
+            </div>
+            <p className="text-slate-400 text-xs mb-2 line-clamp-2">{cert.description}</p>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs">
+                <Shield className="w-2.5 h-2.5 mr-1" />{cert.issuing_authority || 'Internal'}
+              </Badge>
+              {cert.validity_period_months && (
+                <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs">
+                  <Clock className="w-2.5 h-2.5 mr-1" />{cert.validity_period_months}mo validity
+                </Badge>
+              )}
+            </div>
+            {earned ? (
+              <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 text-xs">
+                <Download className="w-3 h-3 mr-1" /> Download Certificate
+              </Button>
+            ) : cert.progress > 0 ? (
+              <div>
+                <div className="h-1 bg-slate-700 rounded-full overflow-hidden mb-1">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${cert.progress}%` }} />
+                </div>
+                <span className="text-xs text-slate-400">{cert.progress}% complete</span>
+              </div>
+            ) : (
+              <Link to={createPageUrl('LearningPaths')}>
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                  Start Earning <ChevronRight className="w-3 h-3 ml-1" />
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

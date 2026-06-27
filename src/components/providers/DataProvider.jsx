@@ -1,56 +1,79 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { base44 } from '@/api/base44Client';
 
-// Create a new, simplified DataContext
 const DataContext = createContext();
 
-// The hook to use the context remains the same
 export const useData = () => {
   const context = useContext(DataContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
+  if (!context) throw new Error('useData must be used within a DataProvider');
   return context;
 };
 
-// A drastically simplified DataProvider for debugging
 export const DataProvider = ({ children }) => {
-  
-  // Provide a simple, static "mock" value so components don't crash
-  // trying to access properties of 'null' or 'undefined'.
-  const mockValue = {
-    currentUser: { full_name: 'Debug User', job_title: 'Operator', gamification_points: 0, gamification_level: 1 },
-    processes: [],
-    userProgress: [],
-    allUserProgress: [],
-    learningPaths: [],
-    notifications: [],
-    contributions: [],
-    equipment: [],
-    certifications: [],
-    badges: [],
-    discussions: [],
-    users: [],
-    reviews: [],
-    feedback: [],
-    learningAnalytics: null,
-    isLoading: false, // Set to false so the app doesn't show a loading state
-    error: null,
-    refetchData: () => console.log("Debug: Refetch triggered"),
-    
-    // Add dummy functions for other methods to prevent crashes
-    addEquipment: async () => {},
-    updateEquipment: async () => {},
-    addKnowledgeContribution: async () => {},
-    updateKnowledgeContribution: async () => {},
-    addDiscussion: async () => {},
-    addFeedback: async () => {},
-    updateFeedback: async () => {},
-  };
+  const [currentUser, setCurrentUser] = useState(null);
+  const [processes, setProcesses] = useState([]);
+  const [userProgress, setUserProgress] = useState([]);
+  const [learningPaths, setLearningPaths] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [equipment, setEquipment] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [badges, setBadges] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // The provider just renders its children, wrapped with the mock context value.
-  // This removes all data fetching, useEffects, and complex state logic.
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+
+      const [procs, paths, certs, equip, notifs, bdgs, prog] = await Promise.all([
+        base44.entities.Process.list('-created_date', 100).catch(() => []),
+        base44.entities.LearningPath.list('-created_date', 50).catch(() => []),
+        base44.entities.Certification.list('-created_date', 50).catch(() => []),
+        base44.entities.Equipment.list('-created_date', 50).catch(() => []),
+        base44.entities.Notification.list('-created_date', 50).catch(() => []),
+        base44.entities.Badge.list('-created_date', 50).catch(() => []),
+        base44.entities.UserProgress.list('-updated_date', 200).catch(() => []),
+      ]);
+
+      setProcesses(procs);
+      setLearningPaths(paths);
+      setCertifications(certs);
+      setEquipment(equip);
+      setNotifications(notifs);
+      setBadges(bdgs);
+      setUserProgress(prog);
+
+      if (user?.role === 'admin') {
+        const [usrs, revs] = await Promise.all([
+          base44.entities.User.list().catch(() => []),
+          base44.entities.SupervisorReview.list('-created_date', 100).catch(() => []),
+        ]);
+        setUsers(usrs);
+        setReviews(revs);
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
   return (
-    <DataContext.Provider value={mockValue}>
+    <DataContext.Provider value={{
+      currentUser, processes, userProgress, learningPaths, certifications,
+      equipment, notifications, badges, users, reviews, isLoading, error,
+      unreadCount,
+      refetchData: fetchData,
+      setNotifications,
+    }}>
       {children}
     </DataContext.Provider>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { useData } from "@/components/providers/DataProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -182,11 +181,11 @@ export default function LearningPaths() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
+      <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
         <div className="max-w-7xl mx-auto space-y-8">
-          <Skeleton className="h-12 w-64" />
+          <Skeleton className="h-12 w-64 bg-slate-700" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-80" />)}
+            {Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-80 bg-slate-700" />)}
           </div>
         </div>
       </div>
@@ -194,7 +193,7 @@ export default function LearningPaths() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
@@ -203,16 +202,16 @@ export default function LearningPaths() {
           className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
         >
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                <Route className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
+                <Route className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-800 to-purple-800 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
                 Learning Paths
               </h1>
             </div>
-            <p className="text-slate-600 text-lg max-w-2xl">
-              Structured career progression journeys designed to build expertise and advance your manufacturing skills.
+            <p className="text-slate-400 text-sm max-w-2xl">
+              Structured career progression journeys designed to build expertise and advance your skills.
             </p>
           </div>
 
@@ -231,30 +230,30 @@ export default function LearningPaths() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-indigo-600">{stats.total}</div>
-              <div className="text-sm text-slate-600 mt-1">Available Paths</div>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-purple-400">{stats.total}</div>
+              <div className="text-sm text-slate-400 mt-1">Available Paths</div>
             </CardContent>
           </Card>
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-orange-600">{stats.inProgress}</div>
-              <div className="text-sm text-slate-600 mt-1">In Progress</div>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-blue-400">{stats.inProgress}</div>
+              <div className="text-sm text-slate-400 mt-1">In Progress</div>
             </CardContent>
           </Card>
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600">{stats.completed}</div>
-              <div className="text-sm text-slate-600 mt-1">Completed</div>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-emerald-400">{stats.completed}</div>
+              <div className="text-sm text-slate-400 mt-1">Completed</div>
             </CardContent>
           </Card>
-          <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-purple-600">{stats.withCertification}</div>
-              <div className="text-sm text-slate-600 mt-1">With Certification</div>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-amber-400">{stats.withCertification}</div>
+              <div className="text-sm text-slate-400 mt-1">With Certification</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -272,7 +271,7 @@ export default function LearningPaths() {
               placeholder="Search learning paths..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-12 text-base border-slate-200 focus:border-indigo-400 transition-colors"
+              className="pl-12 h-12 text-base bg-[#1a2540] border-slate-600 text-white placeholder:text-slate-500 focus:border-purple-500"
             />
           </div>
 
@@ -284,9 +283,9 @@ export default function LearningPaths() {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="bg-[#1a2540] border border-slate-700">
+                   <CardContent className="p-6">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700">Target Role</label>
                         <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -328,7 +327,7 @@ export default function LearningPaths() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 bg-[#1a2540] border border-slate-700">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Route className="w-4 h-4" />
               All Paths
@@ -355,11 +354,11 @@ export default function LearningPaths() {
               transition={{ delay: 0.1 }}
             >
               {filteredPaths.length === 0 ? (
-                <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+                <Card className="bg-[#1a2540] border border-slate-700">
                   <CardContent className="p-12 text-center">
-                    <Route className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-700 mb-2">No learning paths found</h3>
-                    <p className="text-slate-500 max-w-md mx-auto">
+                    <Route className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-white mb-2">No learning paths found</h3>
+                    <p className="text-slate-400 max-w-md mx-auto">
                       {searchTerm || selectedRole !== "all" || selectedDifficulty !== "all"
                         ? "Try adjusting your search criteria or filters."
                         : "No learning paths are available at the moment."
@@ -397,14 +396,14 @@ function LearningPathCard({ path, index, getDifficultyColor, getRoleColor }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-300 group overflow-hidden h-full">
+      <Card className="bg-[#1a2540] border border-slate-700/50 hover:border-purple-500/50 transition-all duration-300 group overflow-hidden h-full">
         <div className={`h-2 ${path.isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
                                 path.isStarted ? 'bg-gradient-to-r from-orange-500 to-amber-500' : 
                                 'bg-gradient-to-r from-indigo-500 to-purple-500'}`} />
         
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between mb-3">
-            <CardTitle className="text-lg leading-tight group-hover:text-indigo-600 transition-colors flex-1">
+            <CardTitle className="text-lg leading-tight text-white group-hover:text-purple-400 transition-colors flex-1">
               {path.title}
             </CardTitle>
             {path.certification && (
@@ -429,7 +428,7 @@ function LearningPathCard({ path, index, getDifficultyColor, getRoleColor }) {
             )}
           </div>
           
-          <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed">
+          <p className="text-slate-400 text-sm line-clamp-3 leading-relaxed">
             {path.description}
           </p>
         </CardHeader>
@@ -449,7 +448,7 @@ function LearningPathCard({ path, index, getDifficultyColor, getRoleColor }) {
             </div>
 
             {/* Path Statistics */}
-            <div className="grid grid-cols-2 gap-4 text-sm text-slate-500">
+            <div className="grid grid-cols-2 gap-4 text-sm text-slate-400">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {path.estimated_total_duration || path.estimatedTimeRemaining || 'N/A'} min
@@ -462,9 +461,9 @@ function LearningPathCard({ path, index, getDifficultyColor, getRoleColor }) {
 
             {/* Next Process Info */}
             {path.nextProcess && !path.isCompleted && (
-              <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-                <div className="text-xs font-medium text-indigo-700 mb-1">Next:</div>
-                <div className="text-sm text-indigo-600">{path.nextProcess.title}</div>
+              <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                <div className="text-xs font-medium text-blue-400 mb-1">Next:</div>
+                <div className="text-sm text-blue-300">{path.nextProcess.title}</div>
               </div>
             )}
 

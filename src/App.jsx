@@ -8,22 +8,28 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Dashboard from './pages/Dashboard';
 import ProcessLibrary from './pages/ProcessLibrary';
 import LearningPaths from './pages/LearningPaths';
-import ARGuidance from './pages/ARGuidance';
-import VRSimulation from './pages/VRSimulation';
-import Analytics from './pages/Analytics';
-import CreateProcess from './pages/CreateProcess';
-import Integrations from './pages/Integrations';
-import EquipmentManagement from './pages/EquipmentManagement';
-import SupervisorDashboard from './pages/SupervisorDashboard';
-import FeedbackManagement from './pages/FeedbackManagement';
 import Certifications from './pages/Certifications';
 import LearningPathDetails from './pages/LearningPathDetails';
 import ProcessExecution from './pages/ProcessExecution';
+import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
+import MyLearning from './pages/MyLearning';
+import EquipmentLibrary from './pages/EquipmentLibrary';
+import SupervisorDashboard from './pages/SupervisorDashboard';
+import Admin from './pages/Admin';
+import Analytics from './pages/Analytics';
+
+// Legacy pages
+import ARGuidance from './pages/ARGuidance';
+import VRSimulation from './pages/VRSimulation';
+import CreateProcess from './pages/CreateProcess';
+import Integrations from './pages/Integrations';
+import EquipmentManagement from './pages/EquipmentManagement';
+import FeedbackManagement from './pages/FeedbackManagement';
 import AIContentStudio from './pages/AIContentStudio';
 import KnowledgeHub from './pages/KnowledgeHub';
 import Awards from './pages/Awards';
 import SafetyDashboard from './pages/SafetyDashboard';
-import Profile from './pages/Profile';
 import ReportBuilder from './pages/ReportBuilder';
 import TeamChallenges from './pages/TeamChallenges';
 import APIManager from './pages/APIManager';
@@ -64,23 +70,28 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Dashboard />} />
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/ProcessLibrary" element={<ProcessLibrary />} />
+        <Route path="/MyLearning" element={<MyLearning />} />
         <Route path="/LearningPaths" element={<LearningPaths />} />
+        <Route path="/LearningPathDetails" element={<LearningPathDetails />} />
+        <Route path="/ProcessExecution" element={<ProcessExecution />} />
+        <Route path="/Certifications" element={<Certifications />} />
+        <Route path="/EquipmentLibrary" element={<EquipmentLibrary />} />
+        <Route path="/SupervisorDashboard" element={<SupervisorDashboard />} />
+        <Route path="/Analytics" element={<Analytics />} />
+        <Route path="/Admin" element={<Admin />} />
+        <Route path="/Notifications" element={<Notifications />} />
+        <Route path="/Profile" element={<Profile />} />
+        {/* Legacy routes */}
         <Route path="/ARGuidance" element={<ARGuidance />} />
         <Route path="/VRSimulation" element={<VRSimulation />} />
-        <Route path="/Analytics" element={<Analytics />} />
         <Route path="/CreateProcess" element={<CreateProcess />} />
         <Route path="/Integrations" element={<Integrations />} />
         <Route path="/EquipmentManagement" element={<EquipmentManagement />} />
-        <Route path="/SupervisorDashboard" element={<SupervisorDashboard />} />
         <Route path="/FeedbackManagement" element={<FeedbackManagement />} />
-        <Route path="/Certifications" element={<Certifications />} />
-        <Route path="/LearningPathDetails" element={<LearningPathDetails />} />
-        <Route path="/ProcessExecution" element={<ProcessExecution />} />
         <Route path="/AIContentStudio" element={<AIContentStudio />} />
         <Route path="/KnowledgeHub" element={<KnowledgeHub />} />
         <Route path="/Awards" element={<Awards />} />
         <Route path="/SafetyDashboard" element={<SafetyDashboard />} />
-        <Route path="/Profile" element={<Profile />} />
         <Route path="/ReportBuilder" element={<ReportBuilder />} />
         <Route path="/TeamChallenges" element={<TeamChallenges />} />
         <Route path="/APIManager" element={<APIManager />} />

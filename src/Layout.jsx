@@ -1,218 +1,197 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { useData } from '@/components/providers/DataProvider';
+import { DataProvider } from '@/components/providers/DataProvider';
+import EnhancedErrorBoundary from '@/components/common/EnhancedErrorBoundary';
+import { ToastProvider } from '@/components/common/Toast';
+import { GamificationProvider } from '@/components/gamification/GamificationEngine';
 import {
-  BookOpen,
-  LayoutDashboard,
-  Route,
-  BarChart3,
-  Plus,
-  Workflow,
-  MonitorPlay,
-  Glasses,
-  Brain,
-  Lightbulb,
-  GitFork,
-  Atom,
-  Key,
-  Users,
-  MessageSquare,
-  Award,
-  Hammer,
-  Plug,
-  Shield,
-  User,
-  FileText,
-  Swords,
-  Code
-} from "lucide-react";
-import { DataProvider } from "@/components/providers/DataProvider";
-import { GamificationProvider } from "@/components/gamification/GamificationEngine";
-import EnhancedErrorBoundary from "@/components/common/EnhancedErrorBoundary";
-import { ToastProvider } from "@/components/common/Toast";
+  LayoutDashboard, BookOpen, Route, Award, Hammer, Users, BarChart3,
+  Settings, Bell, User, Menu, X, ChevronLeft, ChevronRight, Zap,
+  BookMarked, Target, GraduationCap
+} from 'lucide-react';
 
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarTrigger,
-  SidebarGroupContent
-} from "@/components/layout/Sidebar";
-
-
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-const navGroups = [
+const NAV_GROUPS = [
   {
-    label: "Core Training",
+    label: 'Learning',
     items: [
-      { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Your starting point" },
-      { title: "Process Library", url: createPageUrl("ProcessLibrary"), icon: BookOpen, description: "Browse all guides" },
-      { title: "Learning Paths", url: createPageUrl("LearningPaths"), icon: Route, description: "Structured courses" },
-      { title: "Process Execution", url: createPageUrl("ProcessExecution"), icon: Workflow, description: "Execute processes" },
-      { title: "Learning Path Details", url: createPageUrl("LearningPathDetails"), icon: GitFork, description: "View path details" }
+      { title: 'Dashboard', path: '/', icon: LayoutDashboard },
+      { title: 'My Learning', path: '/MyLearning', icon: BookMarked },
+      { title: 'Learning Paths', path: '/LearningPaths', icon: Route },
+      { title: 'Certifications', path: '/Certifications', icon: Award },
     ]
   },
   {
-    label: "Advanced Tech",
+    label: 'Content',
     items: [
-      { title: "AR Guidance", url: createPageUrl("ARGuidance"), icon: MonitorPlay, description: "Augmented Reality" },
-      { title: "VR Simulation", url: createPageUrl("VRSimulation"), icon: Glasses, description: "Virtual Reality" },
-      { title: "AI Content Studio", url: createPageUrl("AIContentStudio"), icon: Brain, description: "AI content creation" },
-      { title: "LearnFlow Studio", url: createPageUrl("LearnFlowContentStudio"), icon: Lightbulb, description: "Manage content" },
-      { title: "Adaptive Paths", url: createPageUrl("AdaptiveLearningPaths"), icon: Atom, description: "Personalized learning" },
-      { title: "Autonomic System", url: createPageUrl("AutonomicSystem"), icon: Atom, description: "Autonomous management" },
-      { title: "Blockchain Credentials", url: createPageUrl("BlockchainCredentials"), icon: Key, description: "Digital credentials" }
+      { title: 'Process Library', path: '/ProcessLibrary', icon: BookOpen },
+      { title: 'Equipment', path: '/EquipmentLibrary', icon: Hammer },
     ]
   },
   {
-    label: "Management",
+    label: 'Team',
     items: [
-      { title: "Analytics", url: createPageUrl("Analytics"), icon: BarChart3, description: "Progress insights" },
-      { title: "Create Process", url: createPageUrl("CreateProcess"), icon: Plus, description: "New instruction" },
-      { title: "Supervisor Dashboard", url: createPageUrl("SupervisorDashboard"), icon: Users, description: "Oversee operations" },
-      { title: "Feedback Management", url: createPageUrl("FeedbackManagement"), icon: MessageSquare, description: "Handle feedback" },
-      { title: "Certifications", url: createPageUrl("Certifications"), icon: Award, description: "Manage certifications" },
-      { title: "Equipment Management", url: createPageUrl("EquipmentManagement"), icon: Hammer, description: "Track equipment" },
-      { title: "Integrations", url: createPageUrl("Integrations"), icon: Plug, description: "External connections" },
-      { title: "Knowledge Hub", url: createPageUrl("KnowledgeHub"), icon: Lightbulb, description: "Knowledge articles" },
-      { title: "Awards", url: createPageUrl("Awards"), icon: Award, description: "View achievements" },
-      { title: "Safety Dashboard", url: createPageUrl("SafetyDashboard"), icon: Shield, description: "Monitor safety" },
-      { title: "Profile", url: createPageUrl("Profile"), icon: User, description: "Your profile" },
-      { title: "Report Builder", url: createPageUrl("ReportBuilder"), icon: FileText, description: "Custom reports" },
-      { title: "Team Challenges", url: createPageUrl("TeamChallenges"), icon: Swords, description: "Team challenges" },
-      { title: "API Manager", url: createPageUrl("APIManager"), icon: Code, description: "Manage APIs" }
+      { title: 'Supervisor Dashboard', path: '/SupervisorDashboard', icon: Users, adminOnly: false },
+      { title: 'Analytics', path: '/Analytics', icon: BarChart3 },
     ]
-  }
+  },
+  {
+    label: 'Admin',
+    items: [
+      { title: 'Content Management', path: '/Admin', icon: Settings, adminOnly: true },
+    ]
+  },
+  {
+    label: 'Account',
+    items: [
+      { title: 'Notifications', path: '/Notifications', icon: Bell, badge: true },
+      { title: 'Profile', path: '/Profile', icon: User },
+    ]
+  },
 ];
 
-function AppLayout({ children, currentPageName }) {
+function Sidebar({ collapsed, setCollapsed }) {
   const location = useLocation();
-  
-  // Simplified state for debugging
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [localNotifications, setLocalNotifications] = useState([]);
-  const [showThemeEditor, setShowThemeEditor] = useState(false);
-
-  // Mock user data for now
-  const displayUser = {
-    full_name: "Manufacturing Trainee",
-    job_title: "Advanced Training Active",
-    gamification_points: 1250,
-    gamification_level: 5,
-    avatar_url: null
-  };
-
-  const pointsToNextLevel = (displayUser?.gamification_level ? (displayUser.gamification_level + 1) : 1) * 1000;
-  const levelProgress = displayUser ? ((displayUser.gamification_points % 1000) / 10) : 0;
+  const { currentUser, unreadCount } = useData();
+  const isAdmin = currentUser?.role === 'admin';
 
   return (
-    <EnhancedErrorBoundary fallbackMessage="The LearnFlow dashboard encountered an error. Please try refreshing the page.">
-      <SidebarProvider>
-        <ToastProvider>
-          <GamificationProvider>
-          <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
-            <Sidebar className="border-r border-white/20 backdrop-blur-xl bg-white/90" data-sidebar>
-              <SidebarHeader className="border-b border-white/10 p-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <BookOpen className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-lg bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                      LearnFlow
-                    </h2>
-                    <p className="text-xs text-slate-500 font-medium">Manufacturing Training</p>
-                  </div>
-                </div>
-              </SidebarHeader>
-              
-              <SidebarContent className="p-3">
-                <nav aria-label="Main Navigation">
-                  {navGroups.map((group) => (
-                    <SidebarGroup key={group.label} className="mb-4">
-                      <SidebarGroupLabel className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 py-2">
-                        {group.label}
-                      </SidebarGroupLabel>
-                      <SidebarGroupContent>
-                        <SidebarMenu className="space-y-1">
-                          {group.items.map((item) => (
-                            <SidebarMenuItem key={item.title}>
-                              <SidebarMenuButton 
-                                asChild 
-                                className={`group relative overflow-hidden rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${
-                                  location.pathname === item.url 
-                                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25' 
-                                    : 'text-slate-700 hover:text-slate-900'
-                                }`}
-                              >
-                                <Link 
-                                  to={item.url} 
-                                  className="flex items-center gap-3 p-3 w-full min-h-[44px]" 
-                                >
-                                  <item.icon className={`w-5 h-5 transition-transform duration-200 ${
-                                    location.pathname === item.url ? 'text-white' : 'text-slate-500'
-                                  }`} />
-                                  <span className="font-semibold text-sm">{item.title}</span>
-                                </Link>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          ))}
-                        </SidebarMenu>
-                      </SidebarGroupContent>
-                    </SidebarGroup>
-                  ))}
-                </nav>
-              </SidebarContent>
+    <aside className={`fixed left-0 top-0 bottom-0 z-40 flex flex-col bg-[#0d1526] border-r border-slate-800 transition-all duration-300 ${collapsed ? 'w-16' : 'w-60'}`}>
+      {/* Logo */}
+      <div className={`flex items-center gap-3 px-4 py-5 border-b border-slate-800 ${collapsed ? 'justify-center' : ''}`}>
+        <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0">
+          <Zap className="w-5 h-5 text-white" />
+        </div>
+        {!collapsed && (
+          <span className="text-blue-400 font-bold text-xl tracking-tight">LearnFlow</span>
+        )}
+      </div>
 
-              <SidebarFooter className="border-t border-white/10 p-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-slate-50 to-gray-50 border border-slate-200">
-                  <Avatar className="w-10 h-10">
-                    <AvatarFallback>{displayUser.full_name?.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 text-sm truncate">{displayUser.full_name}</h3>
-                    <p className="text-xs text-slate-500 truncate">{displayUser.job_title || 'Operator'}</p>
-                  </div>
-                </div>
-              </SidebarFooter>
-            </Sidebar>
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-6">
+        {NAV_GROUPS.map(group => {
+          const visibleItems = group.items.filter(item => !item.adminOnly || isAdmin);
+          if (visibleItems.length === 0) return null;
+          return (
+            <div key={group.label}>
+              {!collapsed && (
+                <div className="text-slate-600 text-xs font-semibold uppercase tracking-widest px-3 mb-1">{group.label}</div>
+              )}
+              {visibleItems.map(item => {
+                const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+                return (
+                  <Link key={item.path} to={item.path}>
+                    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all duration-150 group relative ${
+                      isActive
+                        ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    }`}>
+                      <item.icon className={`w-4.5 h-4.5 flex-shrink-0 ${isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-white'}`} style={{ width: '18px', height: '18px' }} />
+                      {!collapsed && <span className="text-sm font-medium flex-1">{item.title}</span>}
+                      {item.badge && unreadCount > 0 && (
+                        <span className={`bg-rose-500 text-white text-xs rounded-full font-bold flex-shrink-0 ${collapsed ? 'absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[10px]' : 'px-1.5 py-0.5'}`}>
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
+      </nav>
 
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <header className="bg-white/80 backdrop-blur-xl border-b border-white/20 px-6 py-4 md:hidden">
-                <div className="flex items-center gap-4">
-                  <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                    LearnFlow
-                  </h1>
-                </div>
-              </header>
-
-              <main className="flex-1 overflow-auto">
-                {children}
-              </main>
+      {/* User footer */}
+      <div className={`border-t border-slate-800 p-3 ${collapsed ? 'flex justify-center' : ''}`}>
+        {!collapsed ? (
+          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+              {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-white text-sm font-medium truncate">{currentUser?.full_name || 'User'}</div>
+              <div className="text-slate-500 text-xs capitalize">{currentUser?.role || 'user'}</div>
             </div>
           </div>
-          </GamificationProvider>
-        </ToastProvider>
-      </SidebarProvider>
-    </EnhancedErrorBoundary>
+        ) : (
+          <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
+            {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+          </div>
+        )}
+      </div>
+
+      {/* Collapse button */}
+      <button
+        onClick={() => setCollapsed(c => !c)}
+        className="absolute -right-3 top-20 w-6 h-6 bg-slate-700 border border-slate-600 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-600 transition-all z-50"
+      >
+        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+      </button>
+    </aside>
   );
 }
 
-export default function Layout({ children, currentPageName }) {
+function AppLayout({ children }) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-[#0f1729] flex">
+      {/* Desktop sidebar */}
+      <div className="hidden md:block">
+        <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+      </div>
+
+      {/* Mobile sidebar overlay */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileSidebarOpen(false)} />
+          <div className="relative z-10 h-full">
+            <Sidebar collapsed={false} setCollapsed={() => {}} />
+            <button
+              onClick={() => setMobileSidebarOpen(false)}
+              className="absolute top-4 right-4 z-20 w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main content */}
+      <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'md:ml-16' : 'md:ml-60'}`}>
+        {/* Mobile topbar */}
+        <div className="md:hidden flex items-center gap-3 px-4 py-3 bg-[#0d1526] border-b border-slate-800 sticky top-0 z-30">
+          <button onClick={() => setMobileSidebarOpen(true)} className="text-slate-400 hover:text-white">
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-blue-400 font-bold text-lg">LearnFlow</span>
+          </div>
+        </div>
+        {children}
+      </main>
+    </div>
+  );
+}
+
+export default function Layout({ children }) {
   return (
     <DataProvider>
-      <AppLayout currentPageName={currentPageName}>
-        {children}
-      </AppLayout>
+      <EnhancedErrorBoundary fallbackMessage="Something went wrong. Please refresh.">
+        <ToastProvider>
+          <GamificationProvider>
+            <AppLayout>
+              {children}
+            </AppLayout>
+          </GamificationProvider>
+        </ToastProvider>
+      </EnhancedErrorBoundary>
     </DataProvider>
-  )
+  );
 }
