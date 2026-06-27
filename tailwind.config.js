@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
-  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+  darkMode: ['class'],
+  content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
   theme: {
     extend: {
       fontFamily: {
@@ -10,10 +10,10 @@ module.exports = {
         mono:    ['var(--font-mono)',    'monospace'],
       },
       borderRadius: {
-        lg:  'var(--radius)',
-        md:  'calc(var(--radius) - 2px)',
-        sm:  'calc(var(--radius) - 4px)',
-        xl:  'calc(var(--radius) + 4px)',
+        sm:   'calc(var(--radius) - 6px)',
+        md:   'calc(var(--radius) - 2px)',
+        lg:   'var(--radius)',
+        xl:   'calc(var(--radius) + 4px)',
         '2xl': 'calc(var(--radius) + 8px)',
         '3xl': 'calc(var(--radius) + 16px)',
       },
@@ -69,15 +69,14 @@ module.exports = {
           ring:                 'hsl(var(--sidebar-ring))',
         },
       },
-      backdropBlur: {
-        xs: '4px',
-      },
       boxShadow: {
-        glass:  '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
-        glow:   '0 0 20px rgba(0,140,255,0.35), 0 0 60px rgba(0,140,255,0.12)',
-        'glow-sm': '0 0 10px rgba(0,140,255,0.3)',
-        card:   '0 2px 24px rgba(0,0,0,0.35)',
-        'inner-top': 'inset 0 1px 0 rgba(255,255,255,0.07)',
+        glass:       '0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
+        'glass-lg':  '0 12px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07)',
+        glow:        '0 0 24px rgba(0,212,255,0.30), 0 0 64px rgba(0,212,255,0.08)',
+        'glow-sm':   '0 0 12px rgba(0,212,255,0.28)',
+        'glow-lg':   '0 0 40px rgba(0,212,255,0.45), 0 0 100px rgba(0,212,255,0.12)',
+        'glow-violet': '0 0 24px rgba(124,58,237,0.30)',
+        card:        '0 2px 16px rgba(0,0,0,0.40)',
       },
       keyframes: {
         'accordion-down': {
@@ -93,17 +92,21 @@ module.exports = {
           to:   { opacity: '1', transform: 'translateY(0)' },
         },
         'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 10px rgba(0,140,255,0.25)' },
-          '50%':      { boxShadow: '0 0 22px rgba(0,140,255,0.55)' },
+          '0%, 100%': { boxShadow: '0 0 10px rgba(0,212,255,0.2)' },
+          '50%':      { boxShadow: '0 0 28px rgba(0,212,255,0.55)' },
+        },
+        'scan': {
+          '0%':   { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
         },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up':   'accordion-up 0.2s ease-out',
         'fade-in-up':     'fade-in-up 0.3s ease-out',
-        'pulse-glow':     'pulse-glow 2s ease-in-out infinite',
+        'pulse-glow':     'pulse-glow 2.5s ease-in-out infinite',
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require('tailwindcss-animate')],
 };

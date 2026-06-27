@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { useData } from '@/components/providers/DataProvider';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Bell, CheckCheck, Info, AlertTriangle, CheckCircle2, AlertCircle, Filter } from 'lucide-react';
+import { Bell, CheckCheck, Info, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const TYPE_CONFIG = {
-  info: { icon: Info, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
-  success: { icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20' },
-  warning: { icon: AlertTriangle, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
-  danger: { icon: AlertCircle, color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20' },
+  info:    { icon: Info,          color: '#00D4FF', bg: 'rgba(0,212,255,0.1)',    border: 'rgba(0,212,255,0.22)'    },
+  success: { icon: CheckCircle2,  color: '#10B981', bg: 'rgba(16,185,129,0.1)',   border: 'rgba(16,185,129,0.22)'   },
+  warning: { icon: AlertTriangle, color: '#F59E0B', bg: 'rgba(245,158,11,0.1)',   border: 'rgba(245,158,11,0.22)'   },
+  danger:  { icon: AlertCircle,   color: '#f87171', bg: 'rgba(248,113,113,0.1)',  border: 'rgba(248,113,113,0.22)'  },
 };
+
+const FILTERS = ['all', 'unread', 'info', 'success', 'warning', 'danger'];
 
 export default function Notifications() {
   const { notifications, setNotifications, isLoading } = useData();
@@ -29,59 +28,72 @@ export default function Notifications() {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
   };
 
-  const filtered = filter === 'all' ? notifications : filter === 'unread' ? notifications.filter(n => !n.is_read) : notifications.filter(n => n.type === filter);
+  const filtered = filter === 'all' ? notifications
+    : filter === 'unread' ? notifications.filter(n => !n.is_read)
+    : notifications.filter(n => n.type === filter);
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   if (isLoading) return (
-    <div className="min-h-screen bg-[#0f1729] p-6 space-y-4">
-      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 bg-slate-700 rounded-xl" />)}
+    <div className="min-h-screen p-6 space-y-4" style={{ background: 'hsl(var(--background))' }}>
+      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
+    <div className="min-h-screen p-4 md:p-6" style={{ background: 'hsl(var(--background))' }}>
       <div className="max-w-3xl mx-auto space-y-6">
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center relative">
-                <Bell className="w-5 h-5 text-white" />
+              <div className="relative w-10 h-10 rounded-xl flex items-center justify-center"
+                   style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
+                <Bell className="w-5 h-5" style={{ color: '#00D4FF' }} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                        style={{ background: 'linear-gradient(135deg, #ef4444, #b91c1c)', boxShadow: '0 0 8px rgba(239,68,68,0.5)' }}>
                     {unreadCount}
                   </span>
                 )}
               </div>
               Notifications
             </h1>
-            <p className="text-slate-400 text-sm mt-1">{unreadCount} unread</p>
+            <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{unreadCount} unread</p>
           </div>
           {unreadCount > 0 && (
-            <Button onClick={markAllRead} variant="outline" size="sm"
-              className="border-slate-600 text-slate-300 hover:text-white">
-              <CheckCheck className="w-4 h-4 mr-2" /> Mark All Read
-            </Button>
+            <button onClick={markAllRead}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,212,255,0.35)'; e.currentTarget.style.color = '#00D4FF'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}>
+              <CheckCheck className="w-4 h-4" /> Mark All Read
+            </button>
           )}
         </div>
 
         {/* Filter chips */}
         <div className="flex gap-2 flex-wrap">
-          {['all', 'unread', 'info', 'success', 'warning', 'danger'].map(f => (
+          {FILTERS.map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all capitalize ${
-                filter === f ? 'bg-blue-600 text-white border-blue-500' : 'bg-[#1a2540] text-slate-400 border-slate-600 hover:border-blue-500 hover:text-blue-400'
-              }`}>
+              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all capitalize"
+              style={filter === f
+                ? { background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF' }
+                : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)' }}>
               {f}
             </button>
           ))}
         </div>
 
-        {/* Notification list */}
+        {/* List */}
         {filtered.length === 0 ? (
           <div className="text-center py-16">
-            <Bell className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <Bell className="w-7 h-7" style={{ color: 'rgba(255,255,255,0.2)' }} />
+            </div>
             <h3 className="text-white font-semibold text-lg mb-1">No notifications</h3>
-            <p className="text-slate-400 text-sm">You're all caught up!</p>
+            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>You're all caught up!</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -89,22 +101,28 @@ export default function Notifications() {
               const cfg = TYPE_CONFIG[n.type] || TYPE_CONFIG.info;
               const Icon = cfg.icon;
               return (
-                <Card key={n.id}
-                  className={`bg-[#1a2540] border transition-all cursor-pointer ${!n.is_read ? `border-l-4 ${cfg.border} border-slate-700/50` : 'border-slate-700/30'}`}
-                  onClick={() => !n.is_read && markRead(n.id)}>
-                  <CardContent className="p-4 flex items-start gap-4">
-                    <div className={`w-9 h-9 ${cfg.bg} rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                      <Icon className={`w-4 h-4 ${cfg.color}`} />
+                <div key={n.id} onClick={() => !n.is_read && markRead(n.id)}
+                  className="flex items-start gap-4 p-4 rounded-2xl transition-all cursor-pointer"
+                  style={{
+                    background: !n.is_read ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.025)',
+                    border: !n.is_read ? `1px solid ${cfg.border}` : '1px solid rgba(255,255,255,0.06)',
+                    backdropFilter: 'blur(12px)',
+                    borderLeft: !n.is_read ? `3px solid ${cfg.color}` : undefined,
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
+                  onMouseLeave={e => e.currentTarget.style.background = !n.is_read ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.025)'}>
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                       style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+                    <Icon className="w-4 h-4" style={{ color: cfg.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm" style={{ color: !n.is_read ? '#fff' : 'rgba(255,255,255,0.6)', fontWeight: !n.is_read ? 500 : 400 }}>{n.message}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{new Date(n.created_date).toLocaleString()}</span>
+                      {!n.is_read && <span className="badge-info text-[10px] px-1.5 py-0.5 rounded-full font-semibold">New</span>}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${!n.is_read ? 'text-white font-medium' : 'text-slate-300'}`}>{n.message}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-slate-500 text-xs">{new Date(n.created_date).toLocaleString()}</span>
-                        {!n.is_read && <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">New</Badge>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>
