@@ -1,149 +1,174 @@
 import React, { useState } from 'react';
 import { useData } from '@/components/providers/DataProvider';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, Award, Star, TrendingUp, Shield, Edit3, Save, X, Zap } from 'lucide-react';
+
+function GlassCard({ children, accent = false, className = '' }) {
+  return (
+    <div className={`rounded-2xl ${className}`}
+         style={{
+           background: accent
+             ? 'linear-gradient(135deg, rgba(0,100,220,0.22), rgba(60,30,140,0.18))'
+             : 'rgba(12,18,42,0.7)',
+           border: accent ? '1px solid rgba(0,140,255,0.3)' : '1px solid rgba(255,255,255,0.07)',
+           backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+           boxShadow: '0 4px 32px rgba(0,0,0,0.35)',
+         }}>
+      {children}
+    </div>
+  );
+}
 
 export default function Profile() {
   const { currentUser, userProgress, certifications, badges, isLoading, refetchData } = useData();
   const [editing, setEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({});
+  const [saving, setSaving]   = useState(false);
+  const [form, setForm]       = useState({});
 
-  const startEdit = () => {
-    setForm({ full_name: currentUser?.full_name || '' });
-    setEditing(true);
-  };
-
+  const startEdit = () => { setForm({ full_name: currentUser?.full_name || '' }); setEditing(true); };
   const save = async () => {
     setSaving(true);
-    try {
-      await base44.auth.updateMe(form);
-      await refetchData();
-      setEditing(false);
-    } catch (e) { console.error(e); }
+    try { await base44.auth.updateMe(form); await refetchData?.(); setEditing(false); }
+    catch (e) { console.error(e); }
     finally { setSaving(false); }
   };
 
   const completed = userProgress.filter(p => p.status === 'completed').length;
-  const level = currentUser?.gamification_level || Math.ceil(completed / 5) + 1;
-  const points = currentUser?.gamification_points || completed * 50;
-  const nextLevelPoints = level * 1000;
-  const levelProgress = Math.min((points % 1000) / 10, 100);
+  const level     = currentUser?.gamification_level || Math.ceil(completed / 5) + 1;
+  const points    = currentUser?.gamification_points || completed * 50;
+  const levelPct  = Math.min((points % 1000) / 10, 100);
 
   if (isLoading) return (
-    <div className="min-h-screen bg-[#0f1729] p-6 space-y-4">
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 bg-slate-700 rounded-xl" />)}
+    <div className="min-h-screen p-6 space-y-4" style={{ background: 'hsl(var(--background))' }}>
+      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }} />)}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen p-4 md:p-6" style={{ background: 'hsl(var(--background))' }}>
+      <div className="max-w-4xl mx-auto space-y-5">
         <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-600 rounded-xl flex items-center justify-center">
-            <User className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+               style={{ background: 'rgba(148,163,184,0.15)', border: '1px solid rgba(148,163,184,0.2)' }}>
+            <User className="w-5 h-5" style={{ color: '#94a3b8' }} />
           </div>
           Profile
         </h1>
 
-        <Card className="bg-[#1a2540] border border-slate-700/50">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center flex-shrink-0 text-3xl font-bold text-white">
-                {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
-              <div className="flex-1 min-w-0">
-                {editing ? (
-                  <div className="space-y-3">
-                    <Input value={form.full_name || ''} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
-                      className="bg-[#0f1729] border-slate-600 text-white max-w-xs" placeholder="Full Name" />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={save} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Save className="w-3 h-3 mr-1" />{saving ? 'Saving...' : 'Save'}
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setEditing(false)} className="text-slate-400">
-                        <X className="w-3 h-3 mr-1" />Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h2 className="text-xl font-bold text-white">{currentUser?.full_name || 'User'}</h2>
-                      <p className="text-slate-400 text-sm mt-0.5">{currentUser?.email}</p>
-                      <Badge className={`mt-2 text-xs ${currentUser?.role === 'admin' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
-                        <Shield className="w-2.5 h-2.5 mr-1" />{currentUser?.role || 'user'}
-                      </Badge>
-                    </div>
-                    <Button size="sm" variant="ghost" onClick={startEdit} className="text-slate-400 hover:text-white">
-                      <Edit3 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
+        {/* Identity card */}
+        <GlassCard>
+          <div className="p-6 flex items-start gap-5">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0 text-3xl font-bold text-white"
+                 style={{ background: 'linear-gradient(135deg, #0060cc, #4020aa)', boxShadow: '0 0 24px rgba(0,96,204,0.4)' }}>
+              {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex-1 min-w-0">
+              {editing ? (
+                <div className="space-y-3">
+                  <input value={form.full_name || ''} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
+                    className="px-3 py-2 rounded-xl text-sm text-white outline-none w-full max-w-xs"
+                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(0,128,255,0.4)' }} />
+                  <div className="flex gap-2">
+                    <button onClick={save} disabled={saving}
+                      className="text-xs font-semibold px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+                      style={{ background: 'rgba(0,128,255,0.25)', border: '1px solid rgba(0,128,255,0.4)', color: '#60b4ff' }}>
+                      <Save className="w-3 h-3" />{saving ? 'Saving…' : 'Save'}
+                    </button>
+                    <button onClick={() => setEditing(false)}
+                      className="text-xs font-semibold px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                      <X className="w-3 h-3" />Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-white">{currentUser?.full_name || 'User'}</h2>
+                    <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{currentUser?.email}</p>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium mt-2 px-2.5 py-1 rounded-full"
+                          style={currentUser?.role === 'admin'
+                            ? { background: 'rgba(192,132,252,0.15)', border: '1px solid rgba(192,132,252,0.25)', color: '#c084fc' }
+                            : { background: 'rgba(96,180,255,0.12)', border: '1px solid rgba(96,180,255,0.2)', color: '#60b4ff' }}>
+                      <Shield className="w-2.5 h-2.5" />{currentUser?.role || 'user'}
+                    </span>
+                  </div>
+                  <button onClick={startEdit} className="p-2 rounded-lg transition-all"
+                          style={{ color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.05)' }}
+                          onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}>
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </GlassCard>
 
-        <Card className="bg-gradient-to-br from-blue-600/20 to-indigo-700/20 border border-blue-500/30">
-          <CardContent className="p-6">
+        {/* XP / Level */}
+        <GlassCard accent>
+          <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold flex items-center gap-2">
-                <Zap className="w-4 h-4 text-amber-400" /> Level {level} — {points} XP
-              </h3>
-              <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
-                {points} / {nextLevelPoints} XP
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4" style={{ color: '#fbbf24' }} />
+                <span className="text-white font-semibold">Level {level}</span>
+              </div>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.25)', color: '#fbbf24' }}>
+                {points} / {level * 1000} XP
+              </span>
             </div>
-            <Progress value={levelProgress} className="h-3 bg-slate-700/50" />
-            <p className="text-slate-400 text-xs mt-2">{Math.round(nextLevelPoints - (points % 1000))} XP to next level</p>
-          </CardContent>
-        </Card>
+            <div className="h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+              <div className="h-full rounded-full transition-all"
+                   style={{ width: `${levelPct}%`, background: 'linear-gradient(90deg, #0080ff, #60b4ff)', boxShadow: '0 0 10px rgba(0,128,255,0.5)' }} />
+            </div>
+            <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              {Math.round(level * 1000 - (points % 1000))} XP to next level
+            </p>
+          </div>
+        </GlassCard>
 
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Processes Done', value: completed, icon: TrendingUp, color: 'text-emerald-400' },
-            { label: 'Certifications', value: certifications.length, icon: Award, color: 'text-amber-400' },
-            { label: 'Total XP', value: points, icon: Star, color: 'text-blue-400' },
-            { label: 'Current Level', value: level, icon: Zap, color: 'text-purple-400' },
+            { label: 'Processes Done', value: completed,              icon: TrendingUp, color: '#34d399' },
+            { label: 'Certifications', value: certifications.length, icon: Award,      color: '#fbbf24' },
+            { label: 'Total XP',       value: points,                icon: Star,       color: '#60b4ff' },
+            { label: 'Current Level',  value: level,                 icon: Zap,        color: '#c084fc' },
           ].map((s, i) => (
-            <Card key={i} className="bg-[#1a2540] border border-slate-700/50">
-              <CardContent className="p-4 text-center">
-                <s.icon className={`w-6 h-6 ${s.color} mx-auto mb-2`} />
-                <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
-                <div className="text-xs text-slate-400 mt-0.5">{s.label}</div>
-              </CardContent>
-            </Card>
+            <div key={i} className="rounded-2xl p-4 text-center"
+                 style={{ background: 'rgba(12,18,42,0.75)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(16px)' }}>
+              <s.icon className="w-5 h-5 mx-auto mb-2" style={{ color: s.color }} />
+              <div className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</div>
+              <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
+            </div>
           ))}
         </div>
 
-        {badges.length > 0 && (
-          <Card className="bg-[#1a2540] border border-slate-700/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-white text-base flex items-center gap-2">
-                <Award className="w-4 h-4 text-amber-400" /> Earned Badges
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+        {/* Badges */}
+        {badges && badges.length > 0 && (
+          <GlassCard>
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Award className="w-4 h-4" style={{ color: '#fbbf24' }} />
+                <span className="text-white font-semibold">Earned Badges</span>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {badges.map(badge => (
-                  <div key={badge.id} className="bg-[#0f1729] rounded-xl p-4 text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-2">
-                      <Award className="w-6 h-6 text-white" />
+                  <div key={badge.id} className="rounded-xl p-4 text-center"
+                       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-2"
+                         style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.3), rgba(245,158,11,0.2))', border: '1px solid rgba(251,191,36,0.35)' }}>
+                      <Award className="w-6 h-6" style={{ color: '#fbbf24' }} />
                     </div>
                     <div className="text-white text-sm font-medium">{badge.title}</div>
-                    <div className="text-slate-500 text-xs mt-0.5">{badge.points} XP</div>
+                    <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{badge.points} XP</div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         )}
       </div>
     </div>

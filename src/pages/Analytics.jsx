@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { useData } from '@/components/providers/DataProvider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
@@ -8,18 +7,28 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, CheckCircle2, Clock, Award, BarChart3 } from 'lucide-react';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
+const COLORS = ['#60b4ff', '#34d399', '#fbbf24', '#f87171', '#c084fc', '#22d3ee'];
+
+function GlassCard({ children, className = '' }) {
+  return (
+    <div className={`rounded-2xl ${className}`}
+         style={{ background: 'rgba(12,18,42,0.7)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 4px 32px rgba(0,0,0,0.35)' }}>
+      {children}
+    </div>
+  );
+}
+
+const tooltipStyle = { backgroundColor: 'rgba(12,18,42,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', backdropFilter: 'blur(16px)' };
 
 export default function Analytics() {
   const { processes, userProgress, users, isLoading } = useData();
 
   const stats = useMemo(() => {
-    const completed = userProgress.filter(p => p.status === 'completed').length;
-    const inProg = userProgress.filter(p => p.status === 'in_progress').length;
-    const totalTime = Math.round(userProgress.reduce((a, p) => a + (p.time_spent || 0), 0) / 60);
+    const completed    = userProgress.filter(p => p.status === 'completed').length;
+    const inProg       = userProgress.filter(p => p.status === 'in_progress').length;
+    const totalTime    = Math.round(userProgress.reduce((a, p) => a + (p.time_spent || 0), 0) / 60);
     const avgCompletion = userProgress.length > 0
-      ? Math.round(userProgress.reduce((a, p) => a + (p.completion_percentage || 0), 0) / userProgress.length)
-      : 0;
+      ? Math.round(userProgress.reduce((a, p) => a + (p.completion_percentage || 0), 0) / userProgress.length) : 0;
     return { completed, inProg, totalTime, avgCompletion };
   }, [userProgress]);
 
@@ -29,7 +38,8 @@ export default function Analytics() {
       const proc = processes.find(pr => pr.id === p.process_id);
       if (proc?.category) counts[proc.category] = (counts[proc.category] || 0) + 1;
     });
-    return Object.entries(counts).map(([cat, count]) => ({ name: cat.replace('_', ' '), completions: count })).sort((a, b) => b.completions - a.completions).slice(0, 7);
+    return Object.entries(counts).map(([cat, count]) => ({ name: cat.replace('_', ' '), completions: count }))
+      .sort((a, b) => b.completions - a.completions).slice(0, 7);
   }, [userProgress, processes]);
 
   const difficultyData = useMemo(() => {
@@ -46,13 +56,9 @@ export default function Analytics() {
 
   const completionTrend = useMemo(() => {
     return [...Array(7)].map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
+      const d = new Date(); d.setDate(d.getDate() - (6 - i));
       const day = d.toLocaleDateString('en', { weekday: 'short' });
-      const count = userProgress.filter(p => {
-        if (!p.completed_date) return false;
-        return new Date(p.completed_date).toDateString() === d.toDateString();
-      }).length;
+      const count = userProgress.filter(p => p.completed_date && new Date(p.completed_date).toDateString() === d.toDateString()).length;
       return { day, completions: count };
     });
   }, [userProgress]);
@@ -68,157 +74,155 @@ export default function Analytics() {
   }, [userProgress, processes]);
 
   if (isLoading) return (
-    <div className="min-h-screen bg-[#0f1729] p-6 space-y-6">
-      <Skeleton className="h-12 w-48 bg-slate-700" />
+    <div className="min-h-screen p-6 space-y-6" style={{ background: 'hsl(var(--background))' }}>
+      <Skeleton className="h-12 w-48 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 bg-slate-700 rounded-xl" />)}
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }} />)}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
+    <div className="min-h-screen p-4 md:p-6" style={{ background: 'hsl(var(--background))' }}>
       <div className="max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                 style={{ background: 'rgba(192,132,252,0.2)', border: '1px solid rgba(192,132,252,0.3)' }}>
+              <BarChart3 className="w-5 h-5" style={{ color: '#c084fc' }} />
             </div>
             Analytics
           </h1>
-          <p className="text-slate-400 mt-1 text-sm">Training performance insights</p>
+          <p className="mt-1 text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>Training performance insights</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Completions', value: stats.completed, icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-            { label: 'In Progress', value: stats.inProg, icon: TrendingUp, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-            { label: 'Hours Trained', value: stats.totalTime, icon: Clock, color: 'text-amber-400', bg: 'bg-amber-400/10' },
-            { label: 'Avg Completion', value: `${stats.avgCompletion}%`, icon: Award, color: 'text-purple-400', bg: 'bg-purple-400/10' },
+            { label: 'Completions', value: stats.completed, icon: CheckCircle2, color: '#34d399', glow: 'rgba(52,211,153,0.2)' },
+            { label: 'In Progress', value: stats.inProg,    icon: TrendingUp,   color: '#60b4ff', glow: 'rgba(96,180,255,0.2)' },
+            { label: 'Hours Trained', value: stats.totalTime, icon: Clock,      color: '#fbbf24', glow: 'rgba(251,191,36,0.2)' },
+            { label: 'Avg Completion', value: `${stats.avgCompletion}%`, icon: Award, color: '#c084fc', glow: 'rgba(192,132,252,0.2)' },
           ].map((s, i) => (
-            <Card key={i} className="bg-[#1a2540] border border-slate-700/50">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center`}>
-                  <s.icon className={`w-5 h-5 ${s.color}`} />
-                </div>
-                <div>
-                  <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
-                  <div className="text-xs text-slate-400">{s.label}</div>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={i} className="rounded-2xl p-4 flex items-center gap-3"
+                 style={{ background: 'rgba(12,18,42,0.75)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(16px)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                   style={{ background: s.glow, border: `1px solid ${s.color}30` }}>
+                <s.icon className="w-5 h-5" style={{ color: s.color }} />
+              </div>
+              <div>
+                <div className="text-xl font-bold" style={{ color: s.color }}>{s.value}</div>
+                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
+              </div>
+            </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="bg-[#1a2540] border border-slate-700/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm">Completions This Week</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <GlassCard>
+            <div className="p-5">
+              <div className="text-white font-semibold text-sm mb-4">Completions This Week</div>
               <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={completionTrend}>
                   <defs>
                     <linearGradient id="cGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      <stop offset="5%"  stopColor="#0080ff" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#0080ff" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="day" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#1a2540', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-                  <Area type="monotone" dataKey="completions" stroke="#3b82f6" fill="url(#cGrad)" strokeWidth={2} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="completions" stroke="#60b4ff" fill="url(#cGrad)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card className="bg-[#1a2540] border border-slate-700/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm">Completions by Category</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <GlassCard>
+            <div className="p-5">
+              <div className="text-white font-semibold text-sm mb-4">Completions by Category</div>
               {categoryData.length === 0 ? (
-                <div className="h-48 flex items-center justify-center text-slate-500 text-sm">Complete some processes to see data</div>
+                <div className="h-48 flex items-center justify-center text-sm" style={{ color: 'rgba(255,255,255,0.25)' }}>Complete some processes to see data</div>
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={categoryData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1a2540', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-                    <Bar dataKey="completions" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={tooltipStyle} />
+                    <Bar dataKey="completions" fill="#60b4ff" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card className="bg-[#1a2540] border border-slate-700/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm">Progress by Difficulty</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <GlassCard>
+            <div className="p-5">
+              <div className="text-white font-semibold text-sm mb-4">Progress by Difficulty</div>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={difficultyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#1a2540', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
-                  <Legend />
-                  <Bar dataKey="completed" fill="#10b981" radius={[4, 4, 0, 0]} name="Completed" />
-                  <Bar dataKey="in_progress" fill="#3b82f6" radius={[4, 4, 0, 0]} name="In Progress" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }} />
+                  <Bar dataKey="completed"   fill="#34d399" radius={[6, 6, 0, 0]} name="Completed" />
+                  <Bar dataKey="in_progress" fill="#60b4ff" radius={[6, 6, 0, 0]} name="In Progress" />
                 </BarChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card className="bg-[#1a2540] border border-slate-700/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-sm">Hazard Level Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <GlassCard>
+            <div className="p-5">
+              <div className="text-white font-semibold text-sm mb-4">Hazard Level Distribution</div>
               {hazardData.length === 0 ? (
-                <div className="h-48 flex items-center justify-center text-slate-500 text-sm">No completed processes yet</div>
+                <div className="h-48 flex items-center justify-center text-sm" style={{ color: 'rgba(255,255,255,0.25)' }}>No completed processes yet</div>
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
-                    <Pie data={hazardData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                    <Pie data={hazardData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value"
+                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={{ stroke: 'rgba(255,255,255,0.2)' }}>
                       {hazardData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#1a2540', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }} />
+                    <Tooltip contentStyle={tooltipStyle} />
                   </PieChart>
                 </ResponsiveContainer>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         </div>
 
         {users.length > 0 && (
-          <Card className="bg-[#1a2540] border border-slate-700/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-base flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-400" /> Team Leaderboard
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <GlassCard>
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Users className="w-4 h-4" style={{ color: '#60b4ff' }} />
+                <span className="text-white font-semibold text-base">Team Leaderboard</span>
+              </div>
               <div className="space-y-2">
                 {users.slice(0, 10).map((u, i) => (
-                  <div key={u.id} className="flex items-center gap-4 p-3 rounded-lg bg-[#0f1729]">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${i === 0 ? 'bg-amber-500 text-white' : i === 1 ? 'bg-slate-400 text-white' : i === 2 ? 'bg-orange-700 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                  <div key={u.id} className="flex items-center gap-4 p-3 rounded-xl transition-all"
+                       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                         style={i === 0 ? { background: 'rgba(251,191,36,0.3)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.4)' }
+                                : i === 1 ? { background: 'rgba(148,163,184,0.2)', color: '#94a3b8', border: '1px solid rgba(148,163,184,0.3)' }
+                                : i === 2 ? { background: 'rgba(180,100,50,0.2)', color: '#cd7f32', border: '1px solid rgba(180,100,50,0.3)' }
+                                : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       {i + 1}
                     </div>
                     <div className="flex-1">
                       <div className="text-white text-sm font-medium">{u.full_name}</div>
-                      <div className="text-slate-400 text-xs capitalize">{u.role}</div>
+                      <div className="text-xs capitalize" style={{ color: 'rgba(255,255,255,0.3)' }}>{u.role}</div>
                     </div>
-                    <div className="text-amber-400 font-bold text-sm">{u.gamification_points || 0} XP</div>
+                    <div className="font-bold text-sm" style={{ color: '#fbbf24' }}>{u.gamification_points || 0} XP</div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         )}
       </div>
     </div>
