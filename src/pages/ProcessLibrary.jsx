@@ -4,33 +4,30 @@ import { useData } from '@/components/providers/DataProvider';
 import { createPageUrl } from '@/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
-import {
-  Search, Grid, List, BookOpen, Clock, AlertTriangle,
-  CheckCircle2, Play, ChevronRight, Shield, Layers, Zap, Eye, Filter, X
-} from 'lucide-react';
+import { Search, Grid, List, BookOpen, Clock, AlertTriangle, CheckCircle2, Play, ChevronRight, Shield, Layers, Zap, Eye, Filter } from 'lucide-react';
 
-const HAZARD_STYLE = {
-  low:      { color: '#4ade80', bg: 'rgba(74,222,128,0.1)',   border: 'rgba(74,222,128,0.25)'  },
-  medium:   { color: '#facc15', bg: 'rgba(250,204,21,0.1)',   border: 'rgba(250,204,21,0.25)'  },
-  high:     { color: '#f87171', bg: 'rgba(248,113,113,0.1)',  border: 'rgba(248,113,113,0.25)' },
-  critical: { color: '#ff4444', bg: 'rgba(255,68,68,0.12)',   border: 'rgba(255,68,68,0.35)'   },
+const HAZARD_COLOR = {
+  low:      { bg: '#D1FAE5', text: '#065F46', border: 'rgba(16,185,129,0.2)' },
+  medium:   { bg: '#FEF3C7', text: '#92400E', border: 'rgba(245,158,11,0.2)' },
+  high:     { bg: '#FEE2E2', text: '#991B1B', border: 'rgba(239,68,68,0.2)' },
+  critical: { bg: '#FEE2E2', text: '#7F1D1D', border: 'rgba(239,68,68,0.35)' },
 };
-const DIFF_STYLE = {
-  beginner:     { color: '#4ade80', bg: 'rgba(74,222,128,0.1)',  border: 'rgba(74,222,128,0.25)' },
-  intermediate: { color: '#00D4FF', bg: 'rgba(0,212,255,0.1)',   border: 'rgba(0,212,255,0.22)' },
-  advanced:     { color: '#facc15', bg: 'rgba(250,204,21,0.1)',  border: 'rgba(250,204,21,0.25)' },
-  expert:       { color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.25)' },
+const DIFF_COLOR = {
+  beginner:     { bg: '#D1FAE5', text: '#065F46' },
+  intermediate: { bg: '#EEF2FF', text: '#3730A3' },
+  advanced:     { bg: '#FEF3C7', text: '#92400E' },
+  expert:       { bg: '#FEE2E2', text: '#991B1B' },
 };
 const CONTENT_ICONS = {
   ar_guided: '🥽', vr_simulation: '🎮', interactive: '🖥️',
-  video: '🎬', document: '📄', quiz: '❓', checklist: '✅', mixed_reality: '🌐',
+  video: '🎬', document: '📄', quiz: '❓', checklist: '✅',
 };
 
-function StatusBadge({ style: s, label }) {
+function Pill({ bg, text, border, children }) {
   return (
-    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-          style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}`, boxShadow: `0 0 6px ${s.color}22` }}>
-      {label}
+    <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
+          style={{ background: bg, color: text, border: `1px solid ${border || 'transparent'}` }}>
+      {children}
     </span>
   );
 }
@@ -61,48 +58,39 @@ export default function ProcessLibrary() {
   const getProgress = (id) => userProgress.find(p => p.process_id === id);
 
   if (isLoading) return (
-    <div className="min-h-screen p-6" style={{ background: 'hsl(var(--background))' }}>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <Skeleton className="h-12 w-64 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }} />)}
-        </div>
+    <div className="p-6 max-w-7xl mx-auto space-y-4" style={{ background: 'var(--canvas)' }}>
+      <Skeleton className="h-10 w-64 rounded-xl bg-slate-100" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-56 rounded-2xl bg-slate-100" />)}
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ background: 'hsl(var(--background))' }}>
+    <div className="min-h-screen p-4 md:p-8" style={{ background: 'var(--canvas)' }}>
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                   style={{ background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.22)' }}>
-                <BookOpen className="w-5 h-5" style={{ color: '#00D4FF' }} />
-              </div>
-              Process Library
-            </h1>
-            <p className="mt-1 text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>{processes.length} processes available</p>
+            <p className="label-xs mb-1">Content</p>
+            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Process Library</h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{processes.length} processes available</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
-              style={showFilters
-                ? { background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF' }
-                : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}>
+              className="btn-secondary flex items-center gap-2 text-sm px-4 py-2 rounded-xl"
+              style={showFilters ? { borderColor: 'var(--brand-primary)', color: 'var(--brand-primary)' } : {}}>
               <Filter className="w-4 h-4" /> Filters
             </button>
-            <div className="flex p-1 rounded-xl gap-1" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              {[{ mode: 'grid', icon: Grid }, { mode: 'list', icon: List }].map(({ mode, icon: Icon }) => (
-                <button key={mode} onClick={() => setViewMode(mode)}
-                  className="p-2 rounded-lg transition-all"
-                  style={viewMode === mode
-                    ? { background: 'rgba(0,212,255,0.15)', color: '#00D4FF' }
-                    : { color: 'rgba(255,255,255,0.35)' }}>
-                  <Icon className="w-4 h-4" />
+            <div className="flex p-1 rounded-xl gap-1 border border-slate-200 bg-white">
+              {[{ m: 'grid', I: Grid }, { m: 'list', I: List }].map(({ m, I }) => (
+                <button key={m} onClick={() => setViewMode(m)}
+                  className="p-2 rounded-lg transition-all text-sm"
+                  style={viewMode === m
+                    ? { background: 'var(--brand-primary)', color: '#fff' }
+                    : { color: '#94A3B8' }}>
+                  <I className="w-4 h-4" />
                 </button>
               ))}
             </div>
@@ -112,88 +100,101 @@ export default function ProcessLibrary() {
         {/* Search + sort */}
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input placeholder="Search processes…" value={search} onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}
-              onFocus={e => e.target.style.borderColor = 'rgba(0,212,255,0.45)'}
-              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.09)'} />
+              className="form-input pl-10" />
           </div>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-            className="px-4 py-2.5 rounded-xl text-sm outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.7)' }}>
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="form-input" style={{ width: 'auto', minWidth: 160 }}>
             <option value="newest">Newest First</option>
             <option value="title">A–Z</option>
             <option value="duration">By Duration</option>
           </select>
         </div>
 
-        {/* Filter panel */}
+        {/* Filters */}
         {showFilters && (
-          <div className="p-5 rounded-2xl grid grid-cols-2 md:grid-cols-3 gap-4"
-               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 grid grid-cols-2 md:grid-cols-3 gap-4"
+               style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
             {[
-              { label: 'Category',   value: category,   setValue: setCategory,   options: categories },
-              { label: 'Difficulty', value: difficulty, setValue: setDifficulty, options: ['all', 'beginner', 'intermediate', 'advanced', 'expert'] },
+              { label: 'Category',   value: category,   set: setCategory,   opts: categories },
+              { label: 'Difficulty', value: difficulty, set: setDifficulty, opts: ['all', 'beginner', 'intermediate', 'advanced', 'expert'] },
             ].map(f => (
-              <div key={f.label} className="space-y-1.5">
-                <label className="text-xs font-medium uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.35)' }}>{f.label}</label>
-                <select value={f.value} onChange={e => f.setValue(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl text-sm outline-none"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}>
-                  {f.options.map(o => <option key={o} value={o}>{o === 'all' ? 'All' : o.replace('_', ' ')}</option>)}
+              <div key={f.label}>
+                <div className="label-xs mb-2">{f.label}</div>
+                <select value={f.value} onChange={e => f.set(e.target.value)} className="form-input" style={{ padding: '8px 12px' }}>
+                  {f.opts.map(o => <option key={o} value={o}>{o === 'all' ? 'All' : o.replace('_', ' ')}</option>)}
                 </select>
               </div>
             ))}
           </div>
         )}
 
-        <div className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>{filtered.length} processes found</div>
+        <div className="label-xs">{filtered.length} results</div>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <Search className="w-14 h-14 mx-auto mb-4" style={{ color: 'rgba(255,255,255,0.12)' }} />
-            <h3 className="text-xl font-semibold text-white mb-2">No processes found</h3>
-            <p style={{ color: 'rgba(255,255,255,0.35)' }}>Try adjusting your search or filters</p>
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-100"
+               style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
+            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-slate-50">
+              <Search className="w-7 h-7 text-slate-300" />
+            </div>
+            <h3 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>No results found</h3>
+            <p style={{ color: 'var(--text-muted)' }}>Try adjusting your search or filters</p>
           </div>
         ) : viewMode === 'list' ? (
-          <div className="space-y-2">
-            {filtered.map(process => {
-              const prog = getProgress(process.id);
-              const isCompleted  = prog?.status === 'completed';
-              const isInProgress = prog?.status === 'in_progress';
-              const hazardS = HAZARD_STYLE[process.hazard_level] || HAZARD_STYLE.low;
-              return (
-                <Link key={process.id} to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
-                  <div className="flex items-center gap-4 p-4 rounded-2xl transition-all duration-150 group cursor-pointer"
-                       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-                       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.2)'; }}
-                       onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}>
-                    <div className="text-2xl flex-shrink-0">{CONTENT_ICONS[process.content_type] || '📋'}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-white font-semibold text-sm group-hover:text-cyan-300 transition-colors truncate">{process.title}</h3>
-                        {isCompleted && <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-400" />}
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <StatusBadge style={hazardS} label={process.hazard_level || 'low'} />
-                        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                          {process.estimated_duration || 30}m · {process.steps?.length || 0} steps
-                        </span>
-                      </div>
-                    </div>
-                    <button className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
-                            style={isCompleted
-                              ? { background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', color: '#10B981' }
-                              : isInProgress
-                              ? { background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00D4FF' }
-                              : { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.65)' }}>
-                      {isCompleted ? 'Review' : isInProgress ? 'Continue' : 'Start'}<ChevronRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
+               style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}>
+            <table className="data-table w-full">
+              <thead>
+                <tr>
+                  <th>Process</th>
+                  <th>Category</th>
+                  <th>Difficulty</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(process => {
+                  const prog = getProgress(process.id);
+                  const isCompleted  = prog?.status === 'completed';
+                  const isInProgress = prog?.status === 'in_progress';
+                  const haz = HAZARD_COLOR[process.hazard_level] || HAZARD_COLOR.low;
+                  return (
+                    <tr key={process.id}>
+                      <td>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{CONTENT_ICONS[process.content_type] || '📋'}</span>
+                          <div>
+                            <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{process.title}</div>
+                            <Pill {...haz}>{process.hazard_level || 'low'}</Pill>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="capitalize">{process.category?.replace('_', ' ') || '—'}</td>
+                      <td>
+                        {process.difficulty_level && (
+                          <Pill {...(DIFF_COLOR[process.difficulty_level] || DIFF_COLOR.beginner)}>{process.difficulty_level}</Pill>
+                        )}
+                      </td>
+                      <td>{process.estimated_duration || 30}m</td>
+                      <td>
+                        {isCompleted  && <Pill bg="#D1FAE5" text="#065F46">✓ Completed</Pill>}
+                        {isInProgress && <Pill bg="#EEF2FF" text="#3730A3">In Progress</Pill>}
+                        {!isCompleted && !isInProgress && <span style={{ color: 'var(--text-muted)' }}>Not started</span>}
+                      </td>
+                      <td>
+                        <Link to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
+                          <button className="btn-secondary text-xs px-3 py-1.5 rounded-lg flex items-center gap-1">
+                            {isCompleted ? 'Review' : isInProgress ? 'Continue' : 'Start'} <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -201,56 +202,53 @@ export default function ProcessLibrary() {
               const prog = getProgress(process.id);
               const isCompleted  = prog?.status === 'completed';
               const isInProgress = prog?.status === 'in_progress';
-              const hazardS = HAZARD_STYLE[process.hazard_level] || HAZARD_STYLE.low;
-              const diffS   = DIFF_STYLE[process.difficulty_level] || DIFF_STYLE.beginner;
+              const haz  = HAZARD_COLOR[process.hazard_level] || HAZARD_COLOR.low;
+              const diff = DIFF_COLOR[process.difficulty_level] || DIFF_COLOR.beginner;
               return (
                 <Link key={process.id} to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
-                  <div className="rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer group h-full flex flex-col"
-                       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}
-                       onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.22)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.07)'; }}
-                       onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                  <div className="bg-white rounded-2xl border border-black/[0.06] h-full flex flex-col overflow-hidden transition-all duration-200 cursor-pointer group hover:-translate-y-0.5"
+                       style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}
+                       onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10)'}
+                       onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)'}>
                     {process.hazard_level === 'critical' && (
-                      <div className="px-4 py-2 flex items-center gap-2"
-                           style={{ background: 'rgba(255,68,68,0.12)', borderBottom: '1px solid rgba(255,68,68,0.2)' }}>
-                        <AlertTriangle className="w-3 h-3 text-red-400" />
-                        <span className="text-red-400 text-xs font-bold tracking-wide">CRITICAL HAZARD</span>
+                      <div className="px-4 py-2 flex items-center gap-2 bg-red-50 border-b border-red-100">
+                        <AlertTriangle className="w-3 h-3 text-red-500" />
+                        <span className="text-red-700 text-[11px] font-bold tracking-wide uppercase">Critical Hazard</span>
                       </div>
                     )}
                     <div className="p-5 flex-1 flex flex-col">
                       <div className="flex items-start justify-between mb-3">
-                        <div className="text-2xl">{CONTENT_ICONS[process.content_type] || '📋'}</div>
+                        <span className="text-2xl">{CONTENT_ICONS[process.content_type] || '📋'}</span>
                         <div className="flex items-center gap-1">
-                          {isCompleted  && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                          {isInProgress && <Play className="w-4 h-4" style={{ color: '#00D4FF' }} />}
+                          {isCompleted  && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                          {isInProgress && <Play className="w-4 h-4" style={{ color: 'var(--brand-primary)' }} />}
                         </div>
                       </div>
-                      <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2 group-hover:text-cyan-300 transition-colors">{process.title}</h3>
-                      <p className="text-xs mb-4 line-clamp-2 flex-1" style={{ color: 'rgba(255,255,255,0.4)' }}>{process.description}</p>
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        <StatusBadge style={hazardS} label={process.hazard_level || 'low'} />
-                        <StatusBadge style={diffS}   label={process.difficulty_level || 'beginner'} />
+                      <h3 className="font-semibold text-sm mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
+                        {process.title}
+                      </h3>
+                      <p className="text-xs mb-4 line-clamp-2 flex-1" style={{ color: 'var(--text-muted)' }}>{process.description}</p>
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        <Pill {...haz}>{process.hazard_level || 'low'}</Pill>
+                        <Pill {...diff}>{process.difficulty_level || 'beginner'}</Pill>
                       </div>
-                      <div className="flex items-center justify-between text-xs mb-3" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                      <div className="flex items-center justify-between text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {process.estimated_duration || 30}m</span>
                         <span className="flex items-center gap-1"><Layers className="w-3 h-3" /> {process.steps?.length || 0} steps</span>
-                        {process.requires_supervisor && (
-                          <span className="flex items-center gap-1" style={{ color: '#facc15' }}><Shield className="w-3 h-3" /> Supervised</span>
-                        )}
+                        {process.requires_supervisor && <span className="flex items-center gap-1 text-amber-600"><Shield className="w-3 h-3" /> Supervised</span>}
                       </div>
                       {isInProgress && (
                         <div className="mb-3">
-                          <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                            <div className="h-full rounded-full" style={{ width: `${prog?.completion_percentage || 0}%`, background: 'linear-gradient(90deg, #00D4FF, #7C3AED)', boxShadow: '0 0 8px rgba(0,212,255,0.5)' }} />
-                          </div>
-                          <div className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>{prog?.completion_percentage || 0}%</div>
+                          <Progress value={prog?.completion_percentage || 0} className="h-1.5" />
+                          <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{prog?.completion_percentage || 0}%</div>
                         </div>
                       )}
                       <button className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
                               style={isCompleted
-                                ? { background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', color: '#10B981' }
+                                ? { background: '#D1FAE5', color: '#065F46' }
                                 : isInProgress
-                                ? { background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.25)', color: '#00D4FF' }
-                                : { background: 'linear-gradient(135deg,rgba(0,212,255,0.15),rgba(124,58,237,0.1))', border: '1px solid rgba(0,212,255,0.2)', color: '#00D4FF' }}>
+                                ? { background: '#EEF2FF', color: '#3730A3' }
+                                : { background: 'var(--brand-primary)', color: '#fff', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
                         {isCompleted ? <><Eye className="w-3 h-3" />Review</>
                           : isInProgress ? <><Play className="w-3 h-3" />Continue</>
                           : <><Zap className="w-3 h-3" />Start</>}
