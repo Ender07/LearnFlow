@@ -2,178 +2,166 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '@/components/providers/DataProvider';
 import { createPageUrl } from '@/utils';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Award, Search, CheckCircle2, Clock, BookOpen, ChevronRight, Download } from 'lucide-react';
-
-function Card({ children, className = '' }) {
-  return (
-    <div className={`bg-white rounded-2xl border border-black/[0.06] ${className}`}
-         style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}>
-      {children}
-    </div>
-  );
-}
+import { Award, Search, Shield, Clock, CheckCircle2, Lock, ChevronRight, Download } from 'lucide-react';
 
 export default function Certifications() {
-  const { certifications, userProgress, processes, isLoading } = useData();
+  const { certifications, userProgress, isLoading } = useData();
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState('all');
 
-  const enriched = useMemo(() => certifications.map(cert => {
-    const requiredProcs = cert.required_processes || [];
-    const total   = requiredProcs.length;
-    const done    = requiredProcs.filter(pid => userProgress.some(up => up.process_id === pid && up.status === 'completed')).length;
-    const pct     = total > 0 ? Math.round((done / total) * 100) : (total === 0 ? 100 : 0);
-    const earned  = pct === 100;
-    return { ...cert, done, total, pct, earned };
-  }), [certifications, userProgress]);
+  const completedProcessIds = useMemo(() =>
+    new Set(userProgress.filter(p => p.status === 'completed').map(p => p.process_id)),
+    [userProgress]
+  );
 
-  const stats = {
-    earned:    enriched.filter(c => c.earned).length,
-    inProg:    enriched.filter(c => !c.earned && c.pct > 0).length,
-    available: enriched.filter(c => !c.earned && c.pct === 0).length,
-  };
+  const certsWithStatus = useMemo(() => {
+    return certifications.filter(c => c.title?.toLowerCase().includes(search.toLowerCase())).map(cert => {
+      const requiredProcs = cert.required_processes || [];
+      const earned = requiredProcs.length === 0 || requiredProcs.every(id => completedProcessIds.has(id));
+      const progress = requiredProcs.length > 0
+        ? Math.round((requiredProcs.filter(id => completedProcessIds.has(id)).length / requiredProcs.length) * 100)
+        : 0;
+      return { ...cert, earned, progress };
+    });
+  }, [certifications, completedProcessIds, search]);
 
-  const filtered = enriched.filter(c => {
-    const q = search.toLowerCase();
-    const matchQ = !q || c.title?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q);
-    const matchTab = tab === 'all' || (tab === 'earned' && c.earned) || (tab === 'in_progress' && !c.earned && c.pct > 0) || (tab === 'available' && !c.earned && c.pct === 0);
-    return matchQ && matchTab;
-  });
+  const earned = certsWithStatus.filter(c => c.earned);
+  const notYet = certsWithStatus.filter(c => !c.earned);
 
   if (isLoading) return (
-    <div className="p-6 space-y-4 max-w-6xl mx-auto" style={{ background: 'var(--canvas)' }}>
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl bg-slate-100" />)}
+    <div className="min-h-screen bg-[#0f1729] p-6 space-y-4">
+      {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-40 bg-slate-700 rounded-xl" />)}
     </div>
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: 'var(--canvas)' }}>
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-
-        <div>
-          <p className="label-xs mb-1">Learning</p>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Certifications</h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Track and earn professional credentials</p>
-        </div>
-
-        {/* Summary */}
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: 'Earned',     value: stats.earned,    color: '#10B981', bg: '#D1FAE5', icon: CheckCircle2 },
-            { label: 'In Progress', value: stats.inProg,   color: '#4F46E5', bg: '#EEF2FF', icon: Clock },
-            { label: 'Available',  value: stats.available, color: '#F59E0B', bg: '#FEF3C7', icon: Award },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-2xl p-5 border border-black/[0.06] stat-accent-line"
-                 style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)', borderLeftColor: s.color }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: s.bg }}>
-                <s.icon className="w-5 h-5" style={{ color: s.color }} />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center">
+                <Award className="w-5 h-5 text-white" />
               </div>
-              <div className="text-3xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{s.value}</div>
-              <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Search + tabs */}
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="relative flex-1 max-w-sm">
+              Certifications
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm">{earned.length} earned · {notYet.length} available to earn</p>
+          </div>
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search certifications…" className="form-input pl-10" />
-          </div>
-          <div className="flex p-1 rounded-xl gap-1 bg-slate-100">
-            {['all', 'earned', 'in_progress', 'available'].map(t => (
-              <button key={t} onClick={() => setTab(t)}
-                className="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize"
-                style={tab === t
-                  ? { background: '#fff', color: 'var(--text-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }
-                  : { color: 'var(--text-muted)' }}>
-                {t.replace('_', ' ')}
-              </button>
-            ))}
+            <Input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search certifications..."
+              className="pl-10 w-72 bg-[#1a2540] border-slate-600 text-white placeholder:text-slate-500" />
           </div>
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-slate-50">
-              <Award className="w-7 h-7 text-slate-300" />
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="bg-gradient-to-br from-amber-600/20 to-orange-600/20 border border-amber-500/30">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-amber-400">{earned.length}</div>
+              <div className="text-xs text-slate-400 mt-1">Earned</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-blue-400">{notYet.length}</div>
+              <div className="text-xs text-slate-400 mt-1">Available</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-slate-400">{certifications.length}</div>
+              <div className="text-xs text-slate-400 mt-1">Total</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {earned.length > 0 && (
+          <div>
+            <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Earned Certifications
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {earned.map(cert => <CertCard key={cert.id} cert={cert} earned={true} />)}
             </div>
-            <h3 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>No certifications found</h3>
-            <p style={{ color: 'var(--text-muted)' }}>Try a different search or tab</p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {filtered.map(cert => (
-              <div key={cert.id} className="bg-white rounded-2xl border border-black/[0.06] p-6 transition-all duration-200 hover:-translate-y-0.5"
-                   style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)', borderLeftWidth: 3, borderLeftColor: cert.earned ? '#10B981' : cert.pct > 0 ? '#4F46E5' : '#E2E8F0' }}
-                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10)'}
-                   onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)'}>
-                <div className="flex items-start gap-5">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                       style={cert.earned
-                         ? { background: '#D1FAE5', border: '1px solid rgba(16,185,129,0.25)' }
-                         : cert.pct > 0
-                         ? { background: '#EEF2FF', border: '1px solid rgba(79,70,229,0.2)' }
-                         : { background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                    <Award className="w-7 h-7" style={{ color: cert.earned ? '#10B981' : cert.pct > 0 ? '#4F46E5' : '#CBD5E1' }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div>
-                        <h3 className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>{cert.title}</h3>
-                        <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{cert.issuing_authority || 'Internal'}</p>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {cert.earned && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#D1FAE5', color: '#065F46' }}>
-                            <CheckCircle2 className="w-3 h-3" /> Earned
-                          </span>
-                        )}
-                        {cert.validity_period_months && (
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: '#FEF3C7', color: '#92400E' }}>
-                            <Clock className="w-3 h-3" /> {cert.validity_period_months}mo
-                          </span>
-                        )}
-                      </div>
-                    </div>
+        )}
 
-                    {cert.description && (
-                      <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{cert.description}</p>
-                    )}
+        {notYet.length > 0 && (
+          <div>
+            <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-slate-400" /> Available to Earn
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {notYet.map(cert => <CertCard key={cert.id} cert={cert} earned={false} />)}
+            </div>
+          </div>
+        )}
 
-                    {cert.total > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between text-xs mb-1.5" style={{ color: 'var(--text-muted)' }}>
-                          <span>{cert.done} of {cert.total} processes</span>
-                          <span className="font-semibold">{cert.pct}%</span>
-                        </div>
-                        <Progress value={cert.pct} className="h-2" />
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2">
-                      {cert.earned ? (
-                        <button className="btn-secondary flex items-center gap-1.5 text-xs px-4 py-2 rounded-lg">
-                          <Download className="w-3.5 h-3.5" /> Download Certificate
-                        </button>
-                      ) : (
-                        <Link to={createPageUrl('LearningPaths')}>
-                          <button className="btn-primary text-xs px-4 py-2 rounded-lg flex items-center gap-1.5">
-                            <BookOpen className="w-3.5 h-3.5" /> {cert.pct > 0 ? 'Continue' : 'Start Learning'}
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {certsWithStatus.length === 0 && (
+          <div className="text-center py-16">
+            <Award className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+            <h3 className="text-white font-semibold text-lg mb-1">No certifications found</h3>
+            <p className="text-slate-400 text-sm">{search ? 'Try a different search term' : 'Certifications will appear here once created'}</p>
+            <Link to={createPageUrl('LearningPaths')}>
+              <Button className="mt-4 bg-amber-600 hover:bg-amber-700 text-white">Browse Learning Paths</Button>
+            </Link>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function CertCard({ cert, earned }) {
+  return (
+    <Card className={`border ${earned ? 'bg-gradient-to-br from-amber-600/10 to-orange-600/10 border-amber-500/30' : 'bg-[#1a2540] border-slate-700/50'}`}>
+      <CardContent className="p-5">
+        <div className="flex items-start gap-4">
+          <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${earned ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-slate-700'}`}>
+            <Award className={`w-7 h-7 ${earned ? 'text-white' : 'text-slate-500'}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="text-white font-bold text-sm">{cert.title}</h3>
+              {earned && <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />}
+            </div>
+            <p className="text-slate-400 text-xs mb-2 line-clamp-2">{cert.description}</p>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs">
+                <Shield className="w-2.5 h-2.5 mr-1" />{cert.issuing_authority || 'Internal'}
+              </Badge>
+              {cert.validity_period_months && (
+                <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs">
+                  <Clock className="w-2.5 h-2.5 mr-1" />{cert.validity_period_months}mo validity
+                </Badge>
+              )}
+            </div>
+            {earned ? (
+              <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 text-xs">
+                <Download className="w-3 h-3 mr-1" /> Download Certificate
+              </Button>
+            ) : cert.progress > 0 ? (
+              <div>
+                <div className="h-1 bg-slate-700 rounded-full overflow-hidden mb-1">
+                  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${cert.progress}%` }} />
+                </div>
+                <span className="text-xs text-slate-400">{cert.progress}% complete</span>
+              </div>
+            ) : (
+              <Link to={createPageUrl('LearningPaths')}>
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                  Start Earning <ChevronRight className="w-3 h-3 ml-1" />
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

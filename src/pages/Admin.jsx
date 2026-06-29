@@ -1,57 +1,42 @@
 import React, { useState } from 'react';
 import { useData } from '@/components/providers/DataProvider';
 import { base44 } from '@/api/base44Client';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Settings, BookOpen, Route, Award, Hammer, Users, Search, ShieldOff } from 'lucide-react';
-
-const TABS = [
-  { value: 'processes',      icon: BookOpen, label: 'Processes' },
-  { value: 'paths',          icon: Route,    label: 'Learning Paths' },
-  { value: 'certifications', icon: Award,    label: 'Certifications' },
-  { value: 'equipment',      icon: Hammer,   label: 'Equipment' },
-  { value: 'users',          icon: Users,    label: 'Users' },
-];
-
-function Pill({ bg, text, children }) {
-  return (
-    <span className="inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full" style={{ background: bg, color: text }}>
-      {children}
-    </span>
-  );
-}
+import { Skeleton } from '@/components/ui/skeleton';
+import { Settings, BookOpen, Route, Award, Hammer, Users, Search, Trash2, Edit3, XCircle, CheckCircle2 } from 'lucide-react';
 
 export default function Admin() {
   const { currentUser, processes, learningPaths, certifications, equipment, users, isLoading, refetchData } = useData();
-  const [search, setSearch]     = useState('');
-  const [activeTab, setActiveTab] = useState('processes');
-  const [toggling, setToggling]   = useState(null);
+  const [search, setSearch] = useState('');
+  const [toggling, setToggling] = useState(null);
+
+  if (!currentUser || currentUser.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-[#0f1729] flex items-center justify-center p-6">
+        <Card className="bg-[#1a2540] border border-rose-500/30 max-w-md">
+          <CardContent className="p-8 text-center">
+            <XCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
+            <h3 className="text-white font-bold text-xl mb-2">Admin Only</h3>
+            <p className="text-slate-400">This area requires administrator privileges.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const togglePublished = async (process) => {
     setToggling(process.id);
-    try { await base44.entities.Process.update(process.id, { is_published: !process.is_published }); await refetchData(); }
-    catch (e) { console.error(e); }
+    try {
+      await base44.entities.Process.update(process.id, { is_published: !process.is_published });
+      await refetchData();
+    } catch (e) { console.error(e); }
     finally { setToggling(null); }
   };
-
-  if (!currentUser || currentUser.role !== 'admin') return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--canvas)' }}>
-      <div className="bg-white rounded-2xl p-10 text-center border border-red-100"
-           style={{ boxShadow: '0 4px 24px rgba(239,68,68,0.1)' }}>
-        <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-red-50">
-          <ShieldOff className="w-6 h-6 text-red-500" />
-        </div>
-        <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Admin Only</h3>
-        <p style={{ color: 'var(--text-muted)' }}>Administrator privileges required.</p>
-      </div>
-    </div>
-  );
-
-  if (isLoading) return (
-    <div className="p-6 space-y-4 max-w-7xl mx-auto" style={{ background: 'var(--canvas)' }}>
-      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-14 rounded-xl bg-slate-100" />)}
-    </div>
-  );
 
   const q = search.toLowerCase();
   const filteredProcs = processes.filter(p => !q || p.title?.toLowerCase().includes(q));
@@ -60,109 +45,168 @@ export default function Admin() {
   const filteredEquip = equipment.filter(e => !q || e.name?.toLowerCase().includes(q));
   const filteredUsers = users.filter(u => !q || u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q));
 
-  const counts = {
-    processes: processes.length, paths: learningPaths.length,
-    certifications: certifications.length, equipment: equipment.length, users: users.length,
-  };
-  const dataMap = { processes: filteredProcs, paths: filteredPaths, certifications: filteredCerts, equipment: filteredEquip, users: filteredUsers };
-
-  const TABLE_COLS = {
-    processes: [
-      { label: 'Title',      render: (p) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{p.title}</span> },
-      { label: 'Category',   render: (p) => <Pill bg="#F1F5F9" text="#475569">{p.category?.replace('_', ' ') || '—'}</Pill> },
-      { label: 'Difficulty', render: (p) => p.difficulty_level ? <Pill bg="#EEF2FF" text="#3730A3">{p.difficulty_level}</Pill> : '—' },
-      { label: 'Published',  render: (p) => <Switch checked={!!p.is_published} disabled={toggling === p.id} onCheckedChange={() => togglePublished(p)} className="data-[state=checked]:bg-emerald-500" /> },
-    ],
-    paths: [
-      { label: 'Title',     render: (p) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{p.title}</span> },
-      { label: 'Role',      render: (p) => <Pill bg="#EDE9FE" text="#5B21B6">{p.target_role?.replace('_', ' ') || '—'}</Pill> },
-      { label: 'Processes', render: (p) => <span style={{ color: 'var(--text-muted)' }}>{p.process_sequence?.length || 0}</span> },
-    ],
-    certifications: [
-      { label: 'Title',   render: (c) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{c.title}</span> },
-      { label: 'Issuer',  render: (c) => <span style={{ color: 'var(--text-muted)' }}>{c.issuing_authority || 'Internal'}</span> },
-      { label: 'Validity', render: (c) => <span style={{ color: 'var(--text-muted)' }}>{c.validity_period_months ? `${c.validity_period_months}mo` : 'Perpetual'}</span> },
-    ],
-    equipment: [
-      { label: 'Name',     render: (e) => <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{e.name}</span> },
-      { label: 'Category', render: (e) => <Pill bg="#EEF2FF" text="#3730A3">{e.category?.replace('_', ' ') || '—'}</Pill> },
-      { label: 'Location', render: (e) => <span style={{ color: 'var(--text-muted)' }}>{e.location || '—'}</span> },
-      { label: 'Status',   render: (e) => {
-        const s = { operational: { bg: '#D1FAE5', text: '#065F46' }, maintenance: { bg: '#FEF3C7', text: '#92400E' }, repair: { bg: '#FEF3C7', text: '#92400E' }, out_of_service: { bg: '#FEE2E2', text: '#991B1B' } };
-        const cfg = s[e.status] || s.operational;
-        return <Pill {...cfg}>{e.status?.replace('_', ' ')}</Pill>;
-      }},
-    ],
-    users: [
-      { label: 'Name',  render: (u) => <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: 'var(--brand-primary)' }}>
-          {u.full_name?.charAt(0)?.toUpperCase() || '?'}
-        </div>
-        <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{u.full_name || '—'}</span>
-      </div>},
-      { label: 'Email',  render: (u) => <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{u.email}</span> },
-      { label: 'Role',   render: (u) => <Pill bg={u.role === 'admin' ? '#EEF2FF' : '#F1F5F9'} text={u.role === 'admin' ? '#3730A3' : '#475569'}>{u.role}</Pill> },
-      { label: 'XP',     render: (u) => <span className="font-bold" style={{ color: '#F59E0B' }}>{u.gamification_points || 0}</span> },
-    ],
-  };
-
-  const cols   = TABLE_COLS[activeTab] || [];
-  const items  = dataMap[activeTab] || [];
+  if (isLoading) return (
+    <div className="min-h-screen bg-[#0f1729] p-6 space-y-4">
+      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 bg-slate-700 rounded-xl" />)}
+    </div>
+  );
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: 'var(--canvas)' }}>
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-
-        <div>
-          <p className="label-xs mb-1">Admin</p>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Content Management</h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Manage all platform content</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center">
+                <Settings className="w-5 h-5 text-white" />
+              </div>
+              Content Management
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm">Manage all platform content</p>
+          </div>
         </div>
 
         {/* Search */}
-        <div className="relative max-w-sm">
+        <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search across all content…" className="form-input pl-10" />
+          <Input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search across all content..."
+            className="pl-10 bg-[#1a2540] border-slate-600 text-white placeholder:text-slate-500" />
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-1 p-1.5 rounded-2xl bg-slate-100">
-          {TABS.map(tab => (
-            <button key={tab.value} onClick={() => setActiveTab(tab.value)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
-              style={activeTab === tab.value
-                ? { background: '#fff', color: 'var(--text-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }
-                : { color: 'var(--text-muted)' }}>
-              <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
-              <span className="ml-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-500">
-                {counts[tab.value]}
-              </span>
-            </button>
-          ))}
-        </div>
+        <Tabs defaultValue="processes">
+          <TabsList className="bg-[#1a2540] border border-slate-700 flex-wrap h-auto gap-1 p-1">
+            {[
+              { value: 'processes', icon: BookOpen, label: 'Processes', count: processes.length },
+              { value: 'paths', icon: Route, label: 'Learning Paths', count: learningPaths.length },
+              { value: 'certifications', icon: Award, label: 'Certifications', count: certifications.length },
+              { value: 'equipment', icon: Hammer, label: 'Equipment', count: equipment.length },
+              { value: 'users', icon: Users, label: 'Users', count: users.length },
+            ].map(tab => (
+              <TabsTrigger key={tab.value} value={tab.value}
+                className="data-[state=active]:bg-rose-600 data-[state=active]:text-white text-slate-400 text-xs md:text-sm">
+                <tab.icon className="w-3.5 h-3.5 mr-1" />{tab.label}
+                <span className="ml-1.5 bg-slate-700 text-slate-300 text-xs rounded-full px-1.5 py-0.5">{tab.count}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Table */}
-        <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden"
-             style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}>
-          {items.length === 0 ? (
-            <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>No items found</div>
-          ) : (
-            <table className="data-table w-full">
-              <thead>
-                <tr>{cols.map((c, i) => <th key={i}>{c.label}</th>)}</tr>
-              </thead>
-              <tbody>
-                {items.map((item, i) => (
-                  <tr key={item.id || i}>
-                    {cols.map((col, j) => <td key={j}>{col.render(item)}</td>)}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+          {/* Processes Tab */}
+          <TabsContent value="processes" className="mt-4">
+            <AdminTable
+              items={filteredProcs}
+              columns={[
+                { key: 'title', label: 'Title' },
+                { key: 'category', label: 'Category', render: v => <span className="capitalize text-slate-300 text-xs">{v?.replace('_', ' ')}</span> },
+                { key: 'difficulty_level', label: 'Difficulty', render: v => <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs capitalize">{v}</Badge> },
+                { key: 'is_published', label: 'Published', render: (v, item) => (
+                  <Switch checked={!!v} disabled={toggling === item.id}
+                    onCheckedChange={() => togglePublished(item)}
+                    className="data-[state=checked]:bg-emerald-500" />
+                )},
+              ]}
+              emptyText="No processes found"
+            />
+          </TabsContent>
+
+          {/* Learning Paths Tab */}
+          <TabsContent value="paths" className="mt-4">
+            <AdminTable
+              items={filteredPaths}
+              columns={[
+                { key: 'title', label: 'Title' },
+                { key: 'target_role', label: 'Role', render: v => <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs capitalize">{v?.replace('_', ' ')}</Badge> },
+                { key: 'process_sequence', label: 'Processes', render: v => <span className="text-slate-300 text-xs">{v?.length || 0} processes</span> },
+                { key: 'estimated_total_duration', label: 'Duration', render: v => <span className="text-slate-300 text-xs">{v || 'N/A'} min</span> },
+              ]}
+              emptyText="No learning paths found"
+            />
+          </TabsContent>
+
+          {/* Certifications Tab */}
+          <TabsContent value="certifications" className="mt-4">
+            <AdminTable
+              items={filteredCerts}
+              columns={[
+                { key: 'title', label: 'Title' },
+                { key: 'issuing_authority', label: 'Issuer', render: v => <span className="text-slate-300 text-xs">{v || 'Internal'}</span> },
+                { key: 'validity_period_months', label: 'Validity', render: v => <span className="text-slate-300 text-xs">{v ? `${v} months` : 'Perpetual'}</span> },
+              ]}
+              emptyText="No certifications found"
+            />
+          </TabsContent>
+
+          {/* Equipment Tab */}
+          <TabsContent value="equipment" className="mt-4">
+            <AdminTable
+              items={filteredEquip}
+              columns={[
+                { key: 'name', label: 'Name' },
+                { key: 'category', label: 'Category', render: v => <Badge className="bg-slate-700/50 text-slate-400 border-slate-600 text-xs capitalize">{v?.replace('_', ' ')}</Badge> },
+                { key: 'location', label: 'Location', render: v => <span className="text-slate-300 text-xs">{v || '—'}</span> },
+                { key: 'status', label: 'Status', render: v => {
+                  const colors = { operational: 'text-emerald-400', maintenance: 'text-amber-400', repair: 'text-orange-400', out_of_service: 'text-rose-400' };
+                  return <span className={`text-xs font-medium capitalize ${colors[v] || 'text-slate-400'}`}>{v?.replace('_', ' ')}</span>;
+                }},
+              ]}
+              emptyText="No equipment found"
+            />
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users" className="mt-4">
+            <AdminTable
+              items={filteredUsers}
+              columns={[
+                { key: 'full_name', label: 'Name' },
+                { key: 'email', label: 'Email', render: v => <span className="text-slate-400 text-xs">{v}</span> },
+                { key: 'role', label: 'Role', render: v => <Badge className={`text-xs ${v === 'admin' ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>{v}</Badge> },
+                { key: 'gamification_points', label: 'XP', render: v => <span className="text-amber-400 font-medium text-xs">{v || 0}</span> },
+              ]}
+              emptyText="No users found"
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
+  );
+}
+
+function AdminTable({ items, columns, emptyText }) {
+  if (items.length === 0) return (
+    <div className="text-center py-12">
+      <p className="text-slate-400">{emptyText}</p>
+    </div>
+  );
+  return (
+    <Card className="bg-[#1a2540] border border-slate-700/50">
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-700">
+                {columns.map(col => (
+                  <th key={col.key} className="text-left p-4 text-xs text-slate-400 font-medium">{col.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, i) => (
+                <tr key={item.id || i} className="border-b border-slate-700/30 hover:bg-slate-800/20 transition-colors">
+                  {columns.map(col => (
+                    <td key={col.key} className="p-4">
+                      {col.render
+                        ? col.render(item[col.key], item)
+                        : <span className="text-white text-sm">{item[col.key] || '—'}</span>
+                      }
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

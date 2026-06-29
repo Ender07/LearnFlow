@@ -2,344 +2,305 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '@/components/providers/DataProvider';
 import { createPageUrl } from '@/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  CheckCircle2, Clock, Award, Play, ChevronRight,
-  TrendingUp, Star, BookOpen, Route, Bell, Trophy,
-  Zap, Target, BarChart3, User
+  CheckCircle2, Clock, Award, Zap, Play, AlertTriangle,
+  ChevronRight, TrendingUp, Star, BookOpen, Route, Target,
+  Bell, Trophy, Flame
 } from 'lucide-react';
-
-function Card({ children, className = '', hover = false }) {
-  return (
-    <div
-      className={`bg-white rounded-2xl p-6 border border-black/[0.06] ${hover ? 'transition-all duration-200 cursor-pointer hover:-translate-y-0.5' : ''} ${className}`}
-      style={{
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04)',
-      }}
-      onMouseEnter={hover ? e => { e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10), 0 24px 48px rgba(0,0,0,0.06)'; } : undefined}
-      onMouseLeave={hover ? e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04)'; } : undefined}
-    >
-      {children}
-    </div>
-  );
-}
 
 export default function Dashboard() {
   const { currentUser, processes, userProgress, learningPaths, certifications, notifications, isLoading } = useData();
 
   const stats = useMemo(() => {
-    const completed  = userProgress.filter(p => p.status === 'completed').length;
+    const completed = userProgress.filter(p => p.status === 'completed').length;
     const inProgress = userProgress.filter(p => p.status === 'in_progress').length;
-    const hoursSpent = Math.round(userProgress.reduce((a, p) => a + (p.time_spent || 0), 0) / 60) || completed * 2;
-    return { completed, inProgress, certsEarned: certifications.length, hoursSpent };
+    const certsEarned = certifications.length;
+    const hoursSpent = Math.round(userProgress.reduce((acc, p) => acc + (p.time_spent || 0), 0) / 60) || completed * 2;
+    return { completed, inProgress, certsEarned, hoursSpent };
   }, [userProgress, certifications]);
 
-  const inProgressProcesses = useMemo(() => userProgress
-    .filter(p => p.status === 'in_progress').slice(0, 3)
-    .map(p => ({ ...p, process: processes.find(pr => pr.id === p.process_id) }))
-    .filter(p => p.process),
-  [userProgress, processes]);
+  const inProgressProcesses = useMemo(() => {
+    return userProgress
+      .filter(p => p.status === 'in_progress')
+      .slice(0, 3)
+      .map(p => ({ ...p, process: processes.find(proc => proc.id === p.process_id) }))
+      .filter(p => p.process);
+  }, [userProgress, processes]);
 
-  const recentActivity = useMemo(() => userProgress
-    .filter(p => p.status === 'completed' && p.completed_date)
-    .sort((a, b) => new Date(b.completed_date) - new Date(a.completed_date))
-    .slice(0, 5)
-    .map(p => ({ ...p, process: processes.find(pr => pr.id === p.process_id) }))
-    .filter(p => p.process),
-  [userProgress, processes]);
+  const recentActivity = useMemo(() => {
+    return userProgress
+      .filter(p => p.status === 'completed' && p.completed_date)
+      .sort((a, b) => new Date(b.completed_date) - new Date(a.completed_date))
+      .slice(0, 5)
+      .map(p => ({ ...p, process: processes.find(proc => proc.id === p.process_id) }))
+      .filter(p => p.process);
+  }, [userProgress, processes]);
 
-  const pathsWithProgress = useMemo(() => learningPaths.slice(0, 3).map(path => {
-    const pathProcs = (path.process_sequence || []).map(id => processes.find(p => p.id === id)).filter(Boolean);
-    const done = pathProcs.filter(p => userProgress.some(up => up.process_id === p.id && up.status === 'completed')).length;
-    return { ...path, total: pathProcs.length, done, pct: pathProcs.length > 0 ? Math.round((done / pathProcs.length) * 100) : 0 };
-  }), [learningPaths, processes, userProgress]);
+  const pathsWithProgress = useMemo(() => {
+    return learningPaths.slice(0, 3).map(path => {
+      const pathProcs = (path.process_sequence || []).map(id => processes.find(p => p.id === id)).filter(Boolean);
+      const done = pathProcs.filter(p => userProgress.some(up => up.process_id === p.id && up.status === 'completed')).length;
+      return { ...path, total: pathProcs.length, done, pct: pathProcs.length > 0 ? Math.round((done / pathProcs.length) * 100) : 0 };
+    });
+  }, [learningPaths, processes, userProgress]);
 
-  const now = new Date();
-  const hour = now.getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const firstName = currentUser?.full_name?.split(' ')[0] || 'there';
-  const unread = notifications.filter(n => !n.is_read).length;
-
-  if (isLoading) return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <Skeleton className="h-10 w-64 rounded-xl bg-slate-100" />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl bg-slate-100" />)}
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        <Skeleton className="h-32 w-full rounded-2xl bg-slate-700" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-xl bg-slate-700" />)}
+        </div>
       </div>
-    </div>
-  );
-
-  const KPI_DATA = [
-    { label: 'Processes Completed', value: stats.completed,   icon: CheckCircle2, color: '#10B981', bg: '#D1FAE5' },
-    { label: 'In Progress',          value: stats.inProgress,  icon: Play,         color: '#4F46E5', bg: '#EEF2FF' },
-    { label: 'Certifications',       value: stats.certsEarned, icon: Award,        color: '#F59E0B', bg: '#FEF3C7' },
-    { label: 'Hours Trained',        value: stats.hoursSpent,  icon: Clock,        color: '#8B5CF6', bg: '#EDE9FE' },
-  ];
-
-  const QUICK_LINKS = [
-    { label: 'Process Library', icon: BookOpen,   href: 'ProcessLibrary',      color: '#4F46E5', bg: '#EEF2FF' },
-    { label: 'Learning Paths',  icon: Route,       href: 'LearningPaths',       color: '#8B5CF6', bg: '#EDE9FE' },
-    { label: 'Certifications',  icon: Award,       href: 'Certifications',      color: '#F59E0B', bg: '#FEF3C7' },
-    { label: 'Analytics',       icon: BarChart3,   href: 'Analytics',           color: '#10B981', bg: '#D1FAE5' },
-    { label: 'Notifications',   icon: Bell,        href: 'Notifications',       color: '#EF4444', bg: '#FEE2E2' },
-    { label: 'Profile',         icon: User,        href: 'Profile',             color: '#64748B', bg: '#F1F5F9' },
-  ];
+    );
+  }
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: 'var(--canvas)' }}>
-      <div className="max-w-7xl mx-auto space-y-7">
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
 
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="label-xs mb-1">{now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-              {greeting}, {firstName} 👋
-            </h1>
-            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {stats.completed} processes completed · {stats.inProgress} in progress
-            </p>
-          </div>
-          {unread > 0 && (
-            <Link to="/Notifications">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all hover:-translate-y-0.5"
-                   style={{ background: '#FEE2E2', border: '1px solid rgba(239,68,68,0.2)', color: '#991B1B',
-                            boxShadow: '0 2px 8px rgba(239,68,68,0.12)' }}>
-                <Bell className="w-4 h-4" />
-                {unread} unread
+        {/* Welcome Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 p-6 md:p-8 text-white shadow-2xl">
+          <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
+          <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Flame className="w-5 h-5 text-amber-400" />
+                <span className="text-blue-200 text-sm font-medium">Welcome to LearnFlow</span>
               </div>
-            </Link>
-          )}
+              <h1 className="text-2xl md:text-3xl font-bold mb-1">
+                Hello, {currentUser?.full_name?.split(' ')[0] || 'Operator'}!
+              </h1>
+              <p className="text-blue-200 text-sm md:text-base capitalize">
+                {currentUser?.role || 'user'} · {stats.completed} processes completed
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-center bg-white/10 rounded-xl p-3 backdrop-blur-sm">
+                <div className="text-2xl font-bold text-amber-400">{currentUser?.gamification_points || stats.completed * 50}</div>
+                <div className="text-xs text-blue-200">XP Points</div>
+              </div>
+              <div className="text-center bg-white/10 rounded-xl p-3 backdrop-blur-sm">
+                <div className="text-2xl font-bold text-emerald-400">Lv.{currentUser?.gamification_level || Math.ceil(stats.completed / 5) + 1}</div>
+                <div className="text-xs text-blue-200">Level</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* KPI row */}
+        {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {KPI_DATA.map((kpi, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 border border-black/[0.06] stat-accent-line transition-all duration-200 cursor-default"
-                 style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)', borderLeftColor: kpi.color }}>
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                     style={{ background: kpi.bg }}>
-                  <kpi.icon className="w-5 h-5" style={{ color: kpi.color }} />
+          {[
+            { label: 'Processes Done', value: stats.completed, icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20' },
+            { label: 'In Progress', value: stats.inProgress, icon: Play, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
+            { label: 'Certifications', value: stats.certsEarned, icon: Award, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
+            { label: 'Hours Trained', value: stats.hoursSpent, icon: Clock, color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/20' },
+          ].map((kpi, i) => (
+            <Card key={i} className={`bg-[#1a2540] border ${kpi.border} shadow-lg`}>
+              <CardContent className="p-4 md:p-5">
+                <div className={`w-10 h-10 ${kpi.bg} rounded-xl flex items-center justify-center mb-3`}>
+                  <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
                 </div>
-                <TrendingUp className="w-4 h-4" style={{ color: '#CBD5E1' }} />
-              </div>
-              <div className="text-3xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{kpi.value}</div>
-              <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{kpi.label}</div>
-            </div>
+                <div className={`text-2xl md:text-3xl font-bold ${kpi.color} mb-1`}>{kpi.value}</div>
+                <div className="text-xs text-slate-400 font-medium">{kpi.label}</div>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2 space-y-6">
 
-            {/* Continue learning */}
+            {/* Continue Where You Left Off */}
             {inProgressProcesses.length > 0 && (
-              <Card>
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#EEF2FF' }}>
-                      <Play className="w-3.5 h-3.5" style={{ color: '#4F46E5' }} />
-                    </div>
-                    <h3 className="font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>Continue Learning</h3>
-                  </div>
-                  <Link to="/MyLearning">
-                    <button className="btn-ghost text-sm px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
-                      View all <ChevronRight className="w-3 h-3" />
-                    </button>
-                  </Link>
-                </div>
-                <div className="space-y-3">
+              <Card className="bg-[#1a2540] border border-slate-700/50 shadow-lg">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white flex items-center gap-2 text-base">
+                    <Play className="w-4 h-4 text-blue-400" />
+                    Continue Where You Left Off
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   {inProgressProcesses.map(({ process, completion_percentage, current_step }) => (
                     <Link key={process.id} to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
-                      <div className="flex items-center gap-4 p-3.5 rounded-xl border border-slate-100 transition-all duration-150 hover:border-indigo-200 hover:bg-indigo-50/40 group cursor-pointer">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#EEF2FF' }}>
-                          <BookOpen className="w-5 h-5" style={{ color: '#4F46E5' }} />
+                      <div className="flex items-center gap-4 p-3 rounded-xl bg-[#0f1729] hover:bg-slate-800/50 transition-colors group">
+                        <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <BookOpen className="w-5 h-5 text-blue-400" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold truncate mb-1" style={{ color: 'var(--text-primary)' }}>{process.title}</div>
-                          <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
-                            Step {(current_step || 0) + 1} of {process.steps?.length || '?'}
-                          </div>
-                          <Progress value={completion_percentage || 0} className="h-1.5" />
+                          <div className="text-white font-medium text-sm truncate group-hover:text-blue-400 transition-colors">{process.title}</div>
+                          <div className="text-slate-400 text-xs mt-1">Step {(current_step || 0) + 1} of {process.steps?.length || '?'}</div>
+                          <Progress value={completion_percentage || 0} className="h-1 mt-2 bg-slate-700" />
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <div className="text-sm font-bold" style={{ color: '#4F46E5' }}>{completion_percentage || 0}%</div>
-                          <ChevronRight className="w-4 h-4 mt-1 ml-auto" style={{ color: '#CBD5E1' }} />
+                          <div className="text-emerald-400 text-sm font-semibold">{completion_percentage || 0}%</div>
+                          <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-colors mt-1" />
                         </div>
                       </div>
                     </Link>
                   ))}
-                </div>
+                </CardContent>
               </Card>
             )}
 
-            {/* Learning paths */}
+            {/* Learning Paths Progress */}
             {pathsWithProgress.length > 0 && (
-              <Card>
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#EDE9FE' }}>
-                      <Route className="w-3.5 h-3.5" style={{ color: '#8B5CF6' }} />
-                    </div>
-                    <h3 className="font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>Learning Paths</h3>
-                  </div>
-                  <Link to="/LearningPaths">
-                    <button className="btn-ghost text-sm px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
-                      View all <ChevronRight className="w-3 h-3" />
-                    </button>
+              <Card className="bg-[#1a2540] border border-slate-700/50 shadow-lg">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                  <CardTitle className="text-white flex items-center gap-2 text-base">
+                    <Route className="w-4 h-4 text-purple-400" />
+                    Your Learning Paths
+                  </CardTitle>
+                  <Link to={createPageUrl('LearningPaths')}>
+                    <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white text-xs">
+                      View All <ChevronRight className="w-3 h-3 ml-1" />
+                    </Button>
                   </Link>
-                </div>
-                <div className="space-y-3">
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {pathsWithProgress.map(path => (
-                    <div key={path.id} className="p-4 rounded-xl border border-slate-100">
+                    <div key={path.id} className="p-4 rounded-xl bg-[#0f1729]">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{path.title}</div>
-                          <div className="text-xs mt-0.5 capitalize" style={{ color: 'var(--text-muted)' }}>
-                            {path.target_role?.replace('_', ' ')}
-                          </div>
+                          <div className="text-white font-medium text-sm">{path.title}</div>
+                          <div className="text-slate-400 text-xs mt-1 capitalize">{path.target_role?.replace('_', ' ')}</div>
                         </div>
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                              style={path.pct === 100
-                                ? { background: '#D1FAE5', color: '#065F46' }
-                                : { background: '#EEF2FF', color: '#4338CA' }}>
-                          {path.pct === 100 ? '✓ Done' : `${path.done}/${path.total}`}
-                        </span>
+                        <Badge className={`text-xs ${path.pct === 100 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-blue-500/20 text-blue-400 border-blue-500/30'}`}>
+                          {path.pct === 100 ? 'Complete' : `${path.done}/${path.total}`}
+                        </Badge>
                       </div>
-                      <Progress value={path.pct} className="h-1.5 mb-2" />
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{path.pct}% complete</span>
+                      <Progress value={path.pct} className="h-1.5 bg-slate-700" />
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-slate-400 text-xs">{path.pct}% complete</span>
                         <Link to={createPageUrl(`LearningPathDetails?id=${path.id}`)}>
-                          <button className="btn-ghost text-xs px-2 py-1 rounded-lg font-medium">
+                          <Button size="sm" variant="ghost" className="text-blue-400 hover:text-blue-300 text-xs p-1 h-auto">
                             {path.pct > 0 ? 'Continue' : 'Start'} →
-                          </button>
+                          </Button>
                         </Link>
                       </div>
                     </div>
                   ))}
-                </div>
+                </CardContent>
               </Card>
             )}
 
-            {/* Quick access */}
-            <Card>
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#FEF3C7' }}>
-                  <Zap className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} />
-                </div>
-                <h3 className="font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>Quick Access</h3>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {QUICK_LINKS.map(item => (
-                  <Link key={item.href} to={createPageUrl(item.href)}>
-                    <div className="p-3 rounded-xl border border-slate-100 text-center transition-all duration-150 hover:border-indigo-200 hover:-translate-y-0.5 cursor-pointer"
-                         style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}
-                         onMouseEnter={e => { e.currentTarget.style.background = item.bg; e.currentTarget.style.borderColor = 'transparent'; }}
-                         onMouseLeave={e => { e.currentTarget.style.background = ''; e.currentTarget.style.borderColor = ''; }}>
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-2"
-                           style={{ background: item.bg }}>
-                        <item.icon className="w-4 h-4" style={{ color: item.color }} />
+            {/* Quick Access */}
+            <Card className="bg-[#1a2540] border border-slate-700/50 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white flex items-center gap-2 text-base">
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  Quick Access
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {[
+                    { label: 'Process Library', icon: BookOpen, href: 'ProcessLibrary', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+                    { label: 'Learning Paths', icon: Route, href: 'LearningPaths', color: 'text-purple-400', bg: 'bg-purple-400/10' },
+                    { label: 'Certifications', icon: Award, href: 'Certifications', color: 'text-amber-400', bg: 'bg-amber-400/10' },
+                    { label: 'Analytics', icon: TrendingUp, href: 'Analytics', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+                    { label: 'Notifications', icon: Bell, href: 'Notifications', color: 'text-rose-400', bg: 'bg-rose-400/10' },
+                    { label: 'Profile', icon: Star, href: 'Profile', color: 'text-slate-400', bg: 'bg-slate-400/10' },
+                  ].map(item => (
+                    <Link key={item.href} to={createPageUrl(item.href)}>
+                      <div className="p-3 rounded-xl bg-[#0f1729] hover:bg-slate-800/50 transition-colors text-center group cursor-pointer">
+                        <div className={`w-8 h-8 ${item.bg} rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
+                          <item.icon className={`w-4 h-4 ${item.color}`} />
+                        </div>
+                        <div className="text-xs text-slate-300 group-hover:text-white transition-colors">{item.label}</div>
                       </div>
-                      <div className="text-[11px] font-semibold" style={{ color: 'var(--text-secondary)' }}>{item.label}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
             </Card>
           </div>
 
-          {/* Right column */}
-          <div className="space-y-5">
-
-            {/* Recent activity */}
-            <Card>
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#FEF3C7' }}>
-                  <Trophy className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} />
-                </div>
-                <h3 className="font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>Recent Activity</h3>
-              </div>
-              {recentActivity.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: '#F8FAFC' }}>
-                    <Target className="w-6 h-6" style={{ color: '#CBD5E1' }} />
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            <Card className="bg-[#1a2540] border border-slate-700/50 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-base flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {recentActivity.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Target className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                    <p className="text-slate-500 text-xs">Start a process to see activity</p>
+                    <Link to={createPageUrl('ProcessLibrary')}>
+                      <Button size="sm" className="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs">Browse Processes</Button>
+                    </Link>
                   </div>
-                  <p className="text-sm font-medium mb-3" style={{ color: 'var(--text-muted)' }}>No activity yet</p>
-                  <Link to="/ProcessLibrary">
-                    <button className="btn-primary text-xs px-4 py-2 rounded-lg">Browse Processes</button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {recentActivity.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#D1FAE5' }}>
-                        <CheckCircle2 className="w-4 h-4" style={{ color: '#10B981' }} />
+                ) : (
+                  <div className="space-y-3">
+                    {recentActivity.map((item, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-white text-xs font-medium truncate">{item.process?.title}</div>
+                          <div className="text-slate-500 text-xs">Completed · +50 XP</div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{item.process?.title}</div>
-                        <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Completed · +50 XP</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </CardContent>
             </Card>
 
-            {/* Notifications preview */}
-            <Card>
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#EEF2FF' }}>
-                    <Bell className="w-3.5 h-3.5" style={{ color: '#4F46E5' }} />
-                  </div>
-                  <h3 className="font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>Notifications</h3>
-                  {unread > 0 && (
-                    <span className="text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
-                          style={{ background: '#EF4444' }}>{unread}</span>
+            <Card className="bg-[#1a2540] border border-slate-700/50 shadow-lg">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <CardTitle className="text-white text-base flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-blue-400" />
+                  Notifications
+                  {notifications.filter(n => !n.is_read).length > 0 && (
+                    <span className="bg-rose-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold">
+                      {notifications.filter(n => !n.is_read).length}
+                    </span>
                   )}
-                </div>
-                <Link to="/Notifications">
-                  <button className="btn-ghost text-[11px] px-2 py-1 rounded-lg">View all</button>
+                </CardTitle>
+                <Link to={createPageUrl('Notifications')}>
+                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white text-xs p-0 h-auto">View all</Button>
                 </Link>
-              </div>
-              {notifications.length === 0 ? (
-                <p className="text-sm text-center py-4" style={{ color: 'var(--text-muted)' }}>All caught up!</p>
-              ) : (
-                <div className="space-y-2">
-                  {notifications.slice(0, 4).map(n => (
-                    <div key={n.id} className="p-3 rounded-xl text-xs border transition-colors"
-                         style={!n.is_read
-                           ? { background: '#EEF2FF', border: '1px solid rgba(79,70,229,0.15)' }
-                           : { background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
-                      <div className="font-medium mb-0.5" style={{ color: n.is_read ? '#94A3B8' : '#0F172A' }}>{n.message}</div>
-                      <div style={{ color: '#CBD5E1' }}>{new Date(n.created_date).toLocaleDateString()}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              </CardHeader>
+              <CardContent>
+                {notifications.length === 0 ? (
+                  <p className="text-slate-500 text-xs text-center py-4">No notifications</p>
+                ) : (
+                  <div className="space-y-2">
+                    {notifications.slice(0, 4).map(n => (
+                      <div key={n.id} className={`p-2 rounded-lg text-xs ${!n.is_read ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-slate-800/30'}`}>
+                        <div className={`font-medium ${!n.is_read ? 'text-white' : 'text-slate-300'}`}>{n.message}</div>
+                        <div className="text-slate-500 mt-0.5">{new Date(n.created_date).toLocaleDateString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
             </Card>
 
-            {/* Certs */}
             {certifications.length > 0 && (
-              <div className="bg-white rounded-2xl p-5 border"
-                   style={{ borderLeftWidth: 3, borderLeftColor: '#F59E0B', borderColor: '#FEF3C7',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <Award className="w-4 h-4" style={{ color: '#F59E0B' }} />
-                  <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Certifications</span>
-                </div>
-                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Keep your credentials current.</p>
-                <Link to="/Certifications">
-                  <button className="w-full text-xs font-semibold py-2 rounded-xl border transition-all hover:-translate-y-0.5"
-                          style={{ background: '#FEF3C7', border: '1px solid rgba(245,158,11,0.3)', color: '#92400E' }}>
-                    View Certifications
-                  </button>
-                </Link>
-              </div>
+              <Card className="bg-amber-500/10 border border-amber-500/30 shadow-lg">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <AlertTriangle className="w-4 h-4 text-amber-400" />
+                    <span className="text-amber-400 font-semibold text-sm">Certification Reminders</span>
+                  </div>
+                  <p className="text-slate-300 text-xs">Keep your certifications current to maintain qualification status.</p>
+                  <Link to={createPageUrl('Certifications')}>
+                    <Button size="sm" className="mt-3 bg-amber-500 hover:bg-amber-600 text-white text-xs w-full">View Certifications</Button>
+                  </Link>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

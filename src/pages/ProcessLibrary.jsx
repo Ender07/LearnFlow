@@ -2,43 +2,44 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useData } from '@/components/providers/DataProvider';
 import { createPageUrl } from '@/utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Progress } from '@/components/ui/progress';
-import { Search, Grid, List, BookOpen, Clock, AlertTriangle, CheckCircle2, Play, ChevronRight, Shield, Layers, Zap, Eye, Filter } from 'lucide-react';
+import {
+  Search, Grid, List, BookOpen, Clock, AlertTriangle,
+  CheckCircle2, Play, ChevronRight, Shield, Layers, Zap, Eye, Filter
+} from 'lucide-react';
 
-const HAZARD_COLOR = {
-  low:      { bg: '#D1FAE5', text: '#065F46', border: 'rgba(16,185,129,0.2)' },
-  medium:   { bg: '#FEF3C7', text: '#92400E', border: 'rgba(245,158,11,0.2)' },
-  high:     { bg: '#FEE2E2', text: '#991B1B', border: 'rgba(239,68,68,0.2)' },
-  critical: { bg: '#FEE2E2', text: '#7F1D1D', border: 'rgba(239,68,68,0.35)' },
+const HAZARD_COLORS = {
+  low: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
+  medium: 'text-amber-400 bg-amber-400/10 border-amber-400/30',
+  high: 'text-rose-400 bg-rose-400/10 border-rose-400/30',
+  critical: 'text-red-500 bg-red-500/10 border-red-500/30',
 };
-const DIFF_COLOR = {
-  beginner:     { bg: '#D1FAE5', text: '#065F46' },
-  intermediate: { bg: '#EEF2FF', text: '#3730A3' },
-  advanced:     { bg: '#FEF3C7', text: '#92400E' },
-  expert:       { bg: '#FEE2E2', text: '#991B1B' },
+
+const DIFFICULTY_COLORS = {
+  beginner: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
+  intermediate: 'text-blue-400 bg-blue-400/10 border-blue-400/30',
+  advanced: 'text-amber-400 bg-amber-400/10 border-amber-400/30',
+  expert: 'text-rose-400 bg-rose-400/10 border-rose-400/30',
 };
+
 const CONTENT_ICONS = {
   ar_guided: '🥽', vr_simulation: '🎮', interactive: '🖥️',
-  video: '🎬', document: '📄', quiz: '❓', checklist: '✅',
+  video: '🎬', document: '📄', quiz: '❓', checklist: '✅', mixed_reality: '🌐',
 };
-
-function Pill({ bg, text, border, children }) {
-  return (
-    <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
-          style={{ background: bg, color: text, border: `1px solid ${border || 'transparent'}` }}>
-      {children}
-    </span>
-  );
-}
 
 export default function ProcessLibrary() {
   const { processes, userProgress, isLoading } = useData();
-  const [search, setSearch]         = useState('');
-  const [category, setCategory]     = useState('all');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
   const [difficulty, setDifficulty] = useState('all');
-  const [sortBy, setSortBy]         = useState('newest');
-  const [viewMode, setViewMode]     = useState('grid');
+  const [contentType, setContentType] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+  const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = useMemo(() => ['all', ...new Set(processes.map(p => p.category).filter(Boolean))], [processes]);
@@ -46,215 +47,195 @@ export default function ProcessLibrary() {
   const filtered = useMemo(() => {
     let list = processes.filter(p => {
       const q = search.toLowerCase();
-      return (!q || p.title?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q))
-        && (category === 'all' || p.category === category)
-        && (difficulty === 'all' || p.difficulty_level === difficulty);
+      const matchSearch = !q || p.title?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q);
+      const matchCat = category === 'all' || p.category === category;
+      const matchDiff = difficulty === 'all' || p.difficulty_level === difficulty;
+      const matchType = contentType === 'all' || p.content_type === contentType;
+      return matchSearch && matchCat && matchDiff && matchType;
     });
     if (sortBy === 'duration') list = [...list].sort((a, b) => (a.estimated_duration || 0) - (b.estimated_duration || 0));
     else if (sortBy === 'title') list = [...list].sort((a, b) => a.title?.localeCompare(b.title));
     return list;
-  }, [processes, search, category, difficulty, sortBy]);
+  }, [processes, search, category, difficulty, contentType, sortBy]);
 
-  const getProgress = (id) => userProgress.find(p => p.process_id === id);
+  const getProgress = (processId) => userProgress.find(p => p.process_id === processId);
 
   if (isLoading) return (
-    <div className="p-6 max-w-7xl mx-auto space-y-4" style={{ background: 'var(--canvas)' }}>
-      <Skeleton className="h-10 w-64 rounded-xl bg-slate-100" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-56 rounded-2xl bg-slate-100" />)}
+    <div className="min-h-screen bg-[#0f1729] p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <Skeleton className="h-12 w-64 bg-slate-700" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-64 bg-slate-700 rounded-xl" />)}
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: 'var(--canvas)' }}>
+    <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <p className="label-xs mb-1">Content</p>
-            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Process Library</h1>
-            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{processes.length} processes available</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-white" />
+              </div>
+              Process Library
+            </h1>
+            <p className="text-slate-400 mt-1 text-sm">{processes.length} processes available</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowFilters(!showFilters)}
-              className="btn-secondary flex items-center gap-2 text-sm px-4 py-2 rounded-xl"
-              style={showFilters ? { borderColor: 'var(--brand-primary)', color: 'var(--brand-primary)' } : {}}>
-              <Filter className="w-4 h-4" /> Filters
-            </button>
-            <div className="flex p-1 rounded-xl gap-1 border border-slate-200 bg-white">
-              {[{ m: 'grid', I: Grid }, { m: 'list', I: List }].map(({ m, I }) => (
-                <button key={m} onClick={() => setViewMode(m)}
-                  className="p-2 rounded-lg transition-all text-sm"
-                  style={viewMode === m
-                    ? { background: 'var(--brand-primary)', color: '#fff' }
-                    : { color: '#94A3B8' }}>
-                  <I className="w-4 h-4" />
-                </button>
-              ))}
+            <Button variant="outline" onClick={() => setShowFilters(!showFilters)}
+              className={`border-slate-600 text-slate-300 hover:text-white ${showFilters ? 'border-blue-500 text-blue-400' : ''}`}>
+              <Filter className="w-4 h-4 mr-2" /> Filters
+            </Button>
+            <div className="flex bg-[#1a2540] border border-slate-700 rounded-lg p-1">
+              <Button variant="ghost" size="sm" onClick={() => setViewMode('grid')}
+                className={`p-2 ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>
+                <Grid className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setViewMode('list')}
+                className={`p-2 ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>
+                <List className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Search + sort */}
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input placeholder="Search processes…" value={search} onChange={e => setSearch(e.target.value)}
-              className="form-input pl-10" />
+            <Input placeholder="Search processes..." value={search} onChange={e => setSearch(e.target.value)}
+              className="pl-10 bg-[#1a2540] border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500" />
           </div>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="form-input" style={{ width: 'auto', minWidth: 160 }}>
-            <option value="newest">Newest First</option>
-            <option value="title">A–Z</option>
-            <option value="duration">By Duration</option>
-          </select>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-44 bg-[#1a2540] border-slate-600 text-slate-300">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1a2540] border-slate-600 text-white">
+              <SelectItem value="newest">Newest First</SelectItem>
+              <SelectItem value="title">A–Z</SelectItem>
+              <SelectItem value="duration">By Duration</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Filters */}
         {showFilters && (
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 grid grid-cols-2 md:grid-cols-3 gap-4"
-               style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-            {[
-              { label: 'Category',   value: category,   set: setCategory,   opts: categories },
-              { label: 'Difficulty', value: difficulty, set: setDifficulty, opts: ['all', 'beginner', 'intermediate', 'advanced', 'expert'] },
-            ].map(f => (
-              <div key={f.label}>
-                <div className="label-xs mb-2">{f.label}</div>
-                <select value={f.value} onChange={e => f.set(e.target.value)} className="form-input" style={{ padding: '8px 12px' }}>
-                  {f.opts.map(o => <option key={o} value={o}>{o === 'all' ? 'All' : o.replace('_', ' ')}</option>)}
-                </select>
-              </div>
-            ))}
-          </div>
+          <Card className="bg-[#1a2540] border border-slate-700">
+            <CardContent className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+              {[
+                { label: 'Category', value: category, setValue: setCategory, options: categories },
+                { label: 'Difficulty', value: difficulty, setValue: setDifficulty, options: ['all', 'beginner', 'intermediate', 'advanced', 'expert'] },
+                { label: 'Content Type', value: contentType, setValue: setContentType, options: ['all', 'interactive', 'ar_guided', 'vr_simulation', 'video', 'document', 'quiz', 'checklist'] },
+              ].map(f => (
+                <div key={f.label} className="space-y-1">
+                  <label className="text-xs text-slate-400 font-medium">{f.label}</label>
+                  <Select value={f.value} onValueChange={f.setValue}>
+                    <SelectTrigger className="bg-[#0f1729] border-slate-600 text-slate-300 text-sm h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1a2540] border-slate-600 text-white">
+                      {f.options.map(o => (
+                        <SelectItem key={o} value={o} className="capitalize">{o === 'all' ? 'All' : o.replace('_', ' ')}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         )}
 
-        <div className="label-xs">{filtered.length} results</div>
+        <div className="flex gap-2 flex-wrap">
+          {['all', 'ar_guided', 'vr_simulation', 'interactive', 'checklist'].map(type => (
+            <button key={type} onClick={() => setContentType(type)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                contentType === type ? 'bg-blue-600 text-white border-blue-500' : 'bg-[#1a2540] text-slate-400 border-slate-600 hover:border-blue-500 hover:text-blue-400'
+              }`}>
+              {CONTENT_ICONS[type] || '📋'} {type === 'all' ? 'All Types' : type.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+
+        <div className="text-slate-400 text-sm">{filtered.length} processes found</div>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-100"
-               style={{ boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
-            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-slate-50">
-              <Search className="w-7 h-7 text-slate-300" />
-            </div>
-            <h3 className="text-xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>No results found</h3>
-            <p style={{ color: 'var(--text-muted)' }}>Try adjusting your search or filters</p>
-          </div>
-        ) : viewMode === 'list' ? (
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden"
-               style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}>
-            <table className="data-table w-full">
-              <thead>
-                <tr>
-                  <th>Process</th>
-                  <th>Category</th>
-                  <th>Difficulty</th>
-                  <th>Duration</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(process => {
-                  const prog = getProgress(process.id);
-                  const isCompleted  = prog?.status === 'completed';
-                  const isInProgress = prog?.status === 'in_progress';
-                  const haz = HAZARD_COLOR[process.hazard_level] || HAZARD_COLOR.low;
-                  return (
-                    <tr key={process.id}>
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{CONTENT_ICONS[process.content_type] || '📋'}</span>
-                          <div>
-                            <div className="font-medium" style={{ color: 'var(--text-primary)' }}>{process.title}</div>
-                            <Pill {...haz}>{process.hazard_level || 'low'}</Pill>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="capitalize">{process.category?.replace('_', ' ') || '—'}</td>
-                      <td>
-                        {process.difficulty_level && (
-                          <Pill {...(DIFF_COLOR[process.difficulty_level] || DIFF_COLOR.beginner)}>{process.difficulty_level}</Pill>
-                        )}
-                      </td>
-                      <td>{process.estimated_duration || 30}m</td>
-                      <td>
-                        {isCompleted  && <Pill bg="#D1FAE5" text="#065F46">✓ Completed</Pill>}
-                        {isInProgress && <Pill bg="#EEF2FF" text="#3730A3">In Progress</Pill>}
-                        {!isCompleted && !isInProgress && <span style={{ color: 'var(--text-muted)' }}>Not started</span>}
-                      </td>
-                      <td>
-                        <Link to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
-                          <button className="btn-secondary text-xs px-3 py-1.5 rounded-lg flex items-center gap-1">
-                            {isCompleted ? 'Review' : isInProgress ? 'Continue' : 'Start'} <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="text-center py-16">
+            <Search className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No processes found</h3>
+            <p className="text-slate-400">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-3'}>
             {filtered.map(process => {
               const prog = getProgress(process.id);
-              const isCompleted  = prog?.status === 'completed';
+              const isCompleted = prog?.status === 'completed';
               const isInProgress = prog?.status === 'in_progress';
-              const haz  = HAZARD_COLOR[process.hazard_level] || HAZARD_COLOR.low;
-              const diff = DIFF_COLOR[process.difficulty_level] || DIFF_COLOR.beginner;
+              if (viewMode === 'list') {
+                return (
+                  <Link key={process.id} to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
+                    <Card className="bg-[#1a2540] border border-slate-700/50 hover:border-blue-500/50 transition-all group cursor-pointer">
+                      <CardContent className="p-4 flex items-center gap-4">
+                        <div className="text-2xl flex-shrink-0">{CONTENT_ICONS[process.content_type] || '📋'}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-white font-semibold text-sm group-hover:text-blue-400 transition-colors truncate">{process.title}</h3>
+                            {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />}
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge className={`text-xs border ${HAZARD_COLORS[process.hazard_level] || HAZARD_COLORS.low}`}>{process.hazard_level || 'low'}</Badge>
+                            <span className="text-slate-500 text-xs">{process.estimated_duration || 30}m · {process.steps?.length || 0} steps</span>
+                          </div>
+                        </div>
+                        <Button size="sm" className={`flex-shrink-0 text-xs ${isCompleted ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : isInProgress ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-700 hover:bg-blue-600 text-slate-300 hover:text-white'}`}>
+                          {isCompleted ? 'Review' : isInProgress ? 'Continue' : 'Start'}<ChevronRight className="w-3 h-3 ml-1" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              }
               return (
                 <Link key={process.id} to={createPageUrl(`ProcessExecution?id=${process.id}`)}>
-                  <div className="bg-white rounded-2xl border border-black/[0.06] h-full flex flex-col overflow-hidden transition-all duration-200 cursor-pointer group hover:-translate-y-0.5"
-                       style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)' }}
-                       onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10)'}
-                       onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06)'}>
+                  <Card className="bg-[#1a2540] border border-slate-700/50 hover:border-blue-500/50 transition-all duration-200 hover:shadow-lg group cursor-pointer h-full">
                     {process.hazard_level === 'critical' && (
-                      <div className="px-4 py-2 flex items-center gap-2 bg-red-50 border-b border-red-100">
-                        <AlertTriangle className="w-3 h-3 text-red-500" />
-                        <span className="text-red-700 text-[11px] font-bold tracking-wide uppercase">Critical Hazard</span>
+                      <div className="bg-rose-500/20 border-b border-rose-500/30 px-4 py-2 flex items-center gap-2">
+                        <AlertTriangle className="w-3 h-3 text-rose-400" />
+                        <span className="text-rose-400 text-xs font-semibold">CRITICAL HAZARD</span>
                       </div>
                     )}
-                    <div className="p-5 flex-1 flex flex-col">
+                    <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-3">
-                        <span className="text-2xl">{CONTENT_ICONS[process.content_type] || '📋'}</span>
+                        <div className="text-2xl">{CONTENT_ICONS[process.content_type] || '📋'}</div>
                         <div className="flex items-center gap-1">
-                          {isCompleted  && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                          {isInProgress && <Play className="w-4 h-4" style={{ color: 'var(--brand-primary)' }} />}
+                          {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                          {isInProgress && <Play className="w-4 h-4 text-blue-400" />}
                         </div>
                       </div>
-                      <h3 className="font-semibold text-sm mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors" style={{ color: 'var(--text-primary)' }}>
-                        {process.title}
-                      </h3>
-                      <p className="text-xs mb-4 line-clamp-2 flex-1" style={{ color: 'var(--text-muted)' }}>{process.description}</p>
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        <Pill {...haz}>{process.hazard_level || 'low'}</Pill>
-                        <Pill {...diff}>{process.difficulty_level || 'beginner'}</Pill>
+                      <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">{process.title}</h3>
+                      <p className="text-slate-400 text-xs mb-4 line-clamp-2">{process.description}</p>
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        <Badge className={`text-xs border ${HAZARD_COLORS[process.hazard_level] || HAZARD_COLORS.low}`}>{process.hazard_level || 'low'}</Badge>
+                        <Badge className={`text-xs border ${DIFFICULTY_COLORS[process.difficulty_level] || DIFFICULTY_COLORS.beginner}`}>{process.difficulty_level || 'beginner'}</Badge>
                       </div>
-                      <div className="flex items-center justify-between text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+                      <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {process.estimated_duration || 30}m</span>
                         <span className="flex items-center gap-1"><Layers className="w-3 h-3" /> {process.steps?.length || 0} steps</span>
-                        {process.requires_supervisor && <span className="flex items-center gap-1 text-amber-600"><Shield className="w-3 h-3" /> Supervised</span>}
+                        {process.requires_supervisor && <span className="flex items-center gap-1 text-amber-400"><Shield className="w-3 h-3" /> Supervised</span>}
                       </div>
                       {isInProgress && (
                         <div className="mb-3">
-                          <Progress value={prog?.completion_percentage || 0} className="h-1.5" />
-                          <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{prog?.completion_percentage || 0}%</div>
+                          <div className="h-1 bg-slate-700 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style={{ width: `${prog?.completion_percentage || 0}%` }} />
+                          </div>
+                          <div className="text-xs text-slate-400 mt-1">{prog?.completion_percentage || 0}% complete</div>
                         </div>
                       )}
-                      <button className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all"
-                              style={isCompleted
-                                ? { background: '#D1FAE5', color: '#065F46' }
-                                : isInProgress
-                                ? { background: '#EEF2FF', color: '#3730A3' }
-                                : { background: 'var(--brand-primary)', color: '#fff', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }}>
-                        {isCompleted ? <><Eye className="w-3 h-3" />Review</>
-                          : isInProgress ? <><Play className="w-3 h-3" />Continue</>
-                          : <><Zap className="w-3 h-3" />Start</>}
-                      </button>
-                    </div>
-                  </div>
+                      <Button size="sm" className={`w-full text-xs ${isCompleted ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : isInProgress ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-700 hover:bg-blue-600 text-slate-300 hover:text-white'}`}>
+                        {isCompleted ? <><Eye className="w-3 h-3 mr-1" />Review</> : isInProgress ? <><Play className="w-3 h-3 mr-1" />Continue</> : <><Zap className="w-3 h-3 mr-1" />Start</>}
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </Link>
               );
             })}
