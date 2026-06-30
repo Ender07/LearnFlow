@@ -9,7 +9,9 @@ import { GamificationProvider } from '@/components/gamification/GamificationEngi
 import {
   LayoutDashboard, BookOpen, Route, Award, Hammer, Users, BarChart3,
   Settings, Bell, User, Menu, X, ChevronLeft, ChevronRight, Zap,
-  BookMarked, Target, GraduationCap, Lightbulb
+  BookMarked, Target, Lightbulb, ShieldCheck, BarChart2, Trophy,
+  Cpu, Glasses, Puzzle, KeyRound, Shield, ClipboardList, Wrench,
+  Brain, Bot, Layers
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -20,6 +22,7 @@ const NAV_GROUPS = [
       { title: 'My Learning', path: '/MyLearning', icon: BookMarked },
       { title: 'Learning Paths', path: '/LearningPaths', icon: Route },
       { title: 'Certifications', path: '/Certifications', icon: Award },
+      { title: 'Blockchain Credentials', path: '/BlockchainCredentials', icon: KeyRound },
     ]
   },
   {
@@ -28,20 +31,38 @@ const NAV_GROUPS = [
       { title: 'Process Library', path: '/ProcessLibrary', icon: BookOpen },
       { title: 'Knowledge Hub', path: '/KnowledgeHub', icon: Lightbulb },
       { title: 'Equipment', path: '/EquipmentLibrary', icon: Hammer },
+      { title: 'LearnFlow Content Studio', path: '/LearnFlowContentStudio', icon: Layers },
     ]
   },
   {
-    label: 'Team',
+    label: 'LearnFlow Hub',
     items: [
-      { title: 'Supervisor Dashboard', path: '/SupervisorDashboard', icon: Users, adminOnly: false },
+      { title: 'LearnFlow Assistant', path: '/AIContentStudio', icon: Bot },
+      { title: 'LearnFlow Intelligence', path: '/AutonomicSystem', icon: Brain },
+      { title: 'LearnFlow Adaptive Paths', path: '/AdaptiveLearningPaths', icon: Cpu },
+      { title: 'AR Guidance', path: '/ARGuidance', icon: Glasses },
+      { title: 'VR Simulation', path: '/VRSimulation', icon: Puzzle },
+    ]
+  },
+  {
+    label: 'Team & Management',
+    items: [
+      { title: 'Supervisor Dashboard', path: '/SupervisorDashboard', icon: Users },
       { title: 'Analytics', path: '/Analytics', icon: BarChart3 },
       { title: 'Compliance', path: '/ComplianceCenter', icon: Target },
+      { title: 'Safety Dashboard', path: '/SafetyDashboard', icon: ShieldCheck },
+      { title: 'Report Builder', path: '/ReportBuilder', icon: ClipboardList },
+      { title: 'Team Challenges', path: '/TeamChallenges', icon: Trophy },
+      { title: 'Feedback Management', path: '/FeedbackManagement', icon: BarChart2 },
     ]
   },
   {
     label: 'Admin',
     items: [
       { title: 'Content Management', path: '/Admin', icon: Settings, adminOnly: true },
+      { title: 'Equipment Management', path: '/EquipmentManagement', icon: Wrench, adminOnly: true },
+      { title: 'API Manager', path: '/APIManager', icon: KeyRound, adminOnly: true },
+      { title: 'Integrations', path: '/Integrations', icon: Puzzle, adminOnly: true },
     ]
   },
   {
