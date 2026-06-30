@@ -20,7 +20,7 @@ import {
   Cell
 } from 'recharts';
 
-export default function FeedbackOverview({ feedback, processes }) {
+export default function FeedbackOverview({ feedback = [], processes }) {
   const stats = useMemo(() => {
     const total = feedback.length;
     const open = feedback.filter(f => f.status === 'open').length;

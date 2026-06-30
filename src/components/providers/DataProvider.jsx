@@ -20,6 +20,7 @@ export const DataProvider = ({ children }) => {
   const [badges, setBadges] = useState([]);
   const [users, setUsers] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [feedback, setFeedback] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -29,7 +30,7 @@ export const DataProvider = ({ children }) => {
       const user = await base44.auth.me();
       setCurrentUser(user);
 
-      const [procs, paths, certs, equip, notifs, bdgs, prog] = await Promise.all([
+      const [procs, paths, certs, equip, notifs, bdgs, prog, fbk] = await Promise.all([
         base44.entities.Process.list('-created_date', 100).catch(() => []),
         base44.entities.LearningPath.list('-created_date', 50).catch(() => []),
         base44.entities.Certification.list('-created_date', 50).catch(() => []),
@@ -37,6 +38,7 @@ export const DataProvider = ({ children }) => {
         base44.entities.Notification.list('-created_date', 50).catch(() => []),
         base44.entities.Badge.list('-created_date', 50).catch(() => []),
         base44.entities.UserProgress.list('-updated_date', 200).catch(() => []),
+        base44.entities.FeedbackRequest.list('-created_date', 200).catch(() => []),
       ]);
 
       setProcesses(procs);
@@ -46,6 +48,7 @@ export const DataProvider = ({ children }) => {
       setNotifications(notifs);
       setBadges(bdgs);
       setUserProgress(prog);
+      setFeedback(fbk);
 
       if (user?.role === 'admin') {
         const [usrs, revs] = await Promise.all([
@@ -69,7 +72,7 @@ export const DataProvider = ({ children }) => {
   return (
     <DataContext.Provider value={{
       currentUser, processes, userProgress, learningPaths, certifications,
-      equipment, notifications, badges, users, reviews, isLoading, error,
+      equipment, notifications, badges, users, reviews, feedback, isLoading, error,
       unreadCount,
       refetchData: fetchData,
       setNotifications,
