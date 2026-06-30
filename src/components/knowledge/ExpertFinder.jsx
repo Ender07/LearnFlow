@@ -7,9 +7,9 @@ import { UserCheck, Search } from 'lucide-react';
 export default function ExpertFinder({ users, contributions }) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const experts = users
+  const experts = (users || [])
     .map(user => {
-      const userContributions = contributions.filter(c => c.created_by === user.email);
+      const userContributions = (contributions || []).filter(c => c.created_by === user.email);
       const contributionCount = userContributions.length;
       const validationScore = userContributions.reduce((acc, c) => acc + (c.validation_score || 0), 0);
       const expertiseScore = contributionCount * 5 + validationScore * 2;
