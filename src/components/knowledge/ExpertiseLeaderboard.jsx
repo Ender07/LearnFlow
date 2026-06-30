@@ -5,13 +5,13 @@ import { Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function ExpertiseLeaderboard({ users, contributions, discussions }) {
-  const leaderboard = users
+  const leaderboard = (users || [])
     .map(user => {
-      const contributionCount = contributions.filter(c => c.created_by === user.email).length;
-      const validationScore = contributions
+      const contributionCount = (contributions || []).filter(c => c.created_by === user.email).length;
+      const validationScore = (contributions || [])
         .filter(c => c.created_by === user.email)
         .reduce((acc, c) => acc + (c.validation_score || 0), 0);
-      const resolvedDiscussions = discussions.filter(d => d.resolved_by === user.id).length;
+      const resolvedDiscussions = (discussions || []).filter(d => d.resolved_by === user.id).length;
       
       const score = (contributionCount * 5) + (validationScore * 2) + (resolvedDiscussions * 10);
       
