@@ -31,16 +31,16 @@ export default function KnowledgeHub() {
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
 
   const filteredContributions = useMemo(() => {
-    return contributions.filter(c =>
-      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.content.toLowerCase().includes(searchTerm.toLowerCase())
+    return (contributions || []).filter(c =>
+      c.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.content?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [contributions, searchTerm]);
 
   const filteredDiscussions = useMemo(() => {
-    return discussions.filter(d =>
-      d.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.content.toLowerCase().includes(searchTerm.toLowerCase())
+    return (discussions || []).filter(d =>
+      d.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.content?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [discussions, searchTerm]);
 
