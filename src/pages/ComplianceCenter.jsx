@@ -2,10 +2,12 @@ import React, { useState, useRef } from 'react';
 import { predictiveComplianceEngine } from '@/functions/predictiveComplianceEngine';
 import { regulatoryWatchdog } from '@/functions/regulatoryWatchdog';
 import { base44 } from '@/api/base44Client';
-import { Shield, AlertTriangle, Upload, Brain, CheckCircle, XCircle, Clock, TrendingUp, RefreshCw, FileText } from 'lucide-react';
+import { Shield, AlertTriangle, Upload, Brain, CheckCircle, XCircle, Clock, TrendingUp, RefreshCw, FileText, Lock, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import AuditConsole from '@/components/compliance/AuditConsole';
+import WorkloadLevelingPanel from '@/components/compliance/WorkloadLevelingPanel';
 
 const STATUS_CONFIG = {
   compliant: { color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20', icon: CheckCircle },
@@ -76,6 +78,8 @@ export default function ComplianceCenter() {
         {[
           { id: 'predictive', label: 'Predictive Modeling', icon: TrendingUp },
           { id: 'watchdog', label: 'Regulatory Watchdog', icon: Brain },
+          { id: 'workload', label: 'Workload Leveling', icon: CalendarDays },
+          { id: 'audit', label: 'Audit Console', icon: Lock },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -187,6 +191,9 @@ export default function ComplianceCenter() {
           )}
         </div>
       )}
+
+      {activeTab === 'workload' && <WorkloadLevelingPanel />}
+      {activeTab === 'audit' && <AuditConsole />}
 
       {/* Regulatory Watchdog Tab */}
       {activeTab === 'watchdog' && (

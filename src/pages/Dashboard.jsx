@@ -12,6 +12,7 @@ import {
   ChevronRight, TrendingUp, Star, BookOpen, Route, Target,
   Bell, Trophy, Flame
 } from 'lucide-react';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
 
 export default function Dashboard() {
   const { currentUser, processes, userProgress, learningPaths, certifications, notifications, isLoading } = useData();
@@ -62,6 +63,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
+      <OnboardingTour />
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Welcome Banner */}

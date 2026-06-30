@@ -1,330 +1,196 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { X, ChevronRight, ChevronLeft, MapPin, Sparkles, Shield, Wifi, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { 
-  ChevronRight, 
-  ChevronLeft, 
-  X, 
-  Sparkles,
-  Target,
-  BookOpen,
-  Users,
-  Award,
-  Settings,
-  Eye,
-  BarChart3
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { OnboardingProgress } from '@/entities/all';
+import { base44 } from '@/api/base44Client';
 
-const onboardingSteps = [
+const TOUR_STEPS = [
   {
     id: 'welcome',
-    title: 'Welcome to LearnFlow!',
-    description: 'Your intelligent manufacturing training platform',
+    title: 'Welcome to LearnFlow! 👋',
+    description: 'Your intelligent training platform has powerful new features. Let us show you around in 60 seconds.',
     icon: Sparkles,
-    content: 'LearnFlow transforms how your team learns and masters manufacturing processes. Let\'s take a quick tour to get you started.',
-    highlight: null
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10',
+    border: 'border-blue-500/30',
+    target: null,
   },
   {
-    id: 'dashboard',
-    title: 'Your Personal Dashboard',
-    description: 'Track your progress and see what\'s next',
-    icon: Target,
-    content: 'This is your command center. Here you can see your training progress, upcoming assignments, and personalized recommendations.',
-    highlight: '.dashboard-stats, .todays-focus'
+    id: 'knowledge_hub',
+    title: 'Knowledge Network Map',
+    description: 'Visit the Knowledge Hub to see how all your organization\'s insights connect across processes — visualized as an interactive network.',
+    icon: Network,
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10',
+    border: 'border-purple-500/30',
+    link: '/KnowledgeHub',
+    linkLabel: 'Open Knowledge Hub →',
   },
   {
-    id: 'process-library',
-    title: 'Process Library',
-    description: 'Browse and start training processes',
-    icon: BookOpen,
-    content: 'Access hundreds of work instructions, procedures, and training materials. Use filters to find exactly what you need.',
-    highlight: '[href*="ProcessLibrary"]'
+    id: 'related_insights',
+    title: 'Related Insights Engine',
+    description: 'When training on any process, the AI automatically surfaces knowledge from similar processes — so expertise transfers across your entire organization.',
+    icon: Sparkles,
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10',
+    border: 'border-indigo-500/30',
+    link: '/ProcessLibrary',
+    linkLabel: 'Browse Processes →',
   },
   {
-    id: 'knowledge-hub',
-    title: 'Knowledge Hub',
-    description: 'Connect with experts and share knowledge',
-    icon: Users,
-    content: 'Ask questions, share tips, and learn from your colleagues. Our community-driven knowledge base grows stronger with every contribution.',
-    highlight: '[href*="KnowledgeHub"]'
+    id: 'compliance',
+    title: 'Compliance Center',
+    description: 'The Compliance Center forecasts certification gaps up to 90 days ahead, auto-assigns renewal training, and scans your processes against uploaded regulations.',
+    icon: Shield,
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+    border: 'border-cyan-500/30',
+    link: '/ComplianceCenter',
+    linkLabel: 'Open Compliance Center →',
   },
   {
-    id: 'ar-training',
-    title: 'AR & VR Training',
-    description: 'Experience immersive learning',
-    icon: Eye,
-    content: 'Use augmented reality for hands-on guidance and virtual reality for safe practice scenarios. The future of training is here.',
-    highlight: '[href*="ARGuidance"], [href*="VRSimulation"]'
+    id: 'audit',
+    title: 'Audit Console',
+    description: 'Every security event, compliance scan, and supervisor review is logged in the tamper-proof Audit Console — ready for regulatory reporting.',
+    icon: Shield,
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10',
+    border: 'border-amber-500/30',
+    link: '/ComplianceCenter',
+    linkLabel: 'View Audit Console →',
   },
   {
-    id: 'achievements',
-    title: 'Earn Achievements',
-    description: 'Track your progress and earn rewards',
-    icon: Award,
-    content: 'Complete processes, help others, and earn points and badges. Gamification makes learning engaging and rewarding.',
-    highlight: '[href*="Awards"]'
+    id: 'offline',
+    title: 'Offline Sync',
+    description: 'Working on the shop floor? Use the Offline Sync panel to download process guides and continue training even without an internet connection.',
+    icon: Wifi,
+    color: 'text-green-400',
+    bg: 'bg-green-500/10',
+    border: 'border-green-500/30',
+    link: '/MyLearning',
+    linkLabel: 'Set Up Offline Access →',
   },
-  {
-    id: 'analytics',
-    title: 'Track Your Growth',
-    description: 'Monitor your learning analytics',
-    icon: BarChart3,
-    content: 'See detailed insights into your learning progress, skill development, and areas for improvement.',
-    highlight: '[href*="Analytics"]'
-  },
-  {
-    id: 'profile',
-    title: 'Customize Your Experience',
-    description: 'Personalize LearnFlow to your needs',
-    icon: Settings,
-    content: 'Adjust your preferences, manage notifications, and customize your interface. Make LearnFlow work the way you do.',
-    highlight: '.user-profile, [href*="Profile"]'
-  }
 ];
 
-export default function OnboardingTour({ userId, onComplete, onSkip }) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [progress, setProgress] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
+const TOUR_KEY = 'learnflow_tour_v2_dismissed';
+
+export default function OnboardingTour() {
+  const [visible, setVisible] = useState(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
-    checkOnboardingStatus();
-  }, [userId]);
-
-  const checkOnboardingStatus = async () => {
-    if (!userId) return;
-
-    try {
-      const existingProgress = await OnboardingProgress.filter({ 
-        user_id: userId, 
-        onboarding_type: 'first_time' 
-      });
-
-      if (existingProgress.length === 0) {
-        // New user - start onboarding
-        const newProgress = await OnboardingProgress.create({
-          user_id: userId,
-          onboarding_type: 'first_time',
-          current_step: 0,
-          completed_steps: [],
-          skipped_steps: []
-        });
-        setProgress(newProgress);
-        setIsVisible(true);
-      } else {
-        const userProgress = existingProgress[0];
-        if (!userProgress.is_completed) {
-          setProgress(userProgress);
-          setCurrentStep(userProgress.current_step);
-          setIsVisible(true);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
+    const dismissed = localStorage.getItem(TOUR_KEY);
+    if (!dismissed) {
+      // Slight delay so the page renders first
+      const t = setTimeout(() => setVisible(true), 1200);
+      return () => clearTimeout(t);
     }
+  }, []);
+
+  const dismiss = () => {
+    localStorage.setItem(TOUR_KEY, 'true');
+    setVisible(false);
   };
 
-  const nextStep = async () => {
-    if (currentStep < onboardingSteps.length - 1) {
-      const newStep = currentStep + 1;
-      setCurrentStep(newStep);
-      await updateProgress(newStep, [...(progress?.completed_steps || []), onboardingSteps[currentStep].id]);
-    } else {
-      await completeOnboarding();
-    }
-  };
+  const current = TOUR_STEPS[step];
+  const isLast = step === TOUR_STEPS.length - 1;
+  const isFirst = step === 0;
 
-  const previousStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const skipStep = async () => {
-    const skippedSteps = [...(progress?.skipped_steps || []), onboardingSteps[currentStep].id];
-    await updateProgress(currentStep + 1, progress?.completed_steps || [], skippedSteps);
-    
-    if (currentStep < onboardingSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      await completeOnboarding();
-    }
-  };
-
-  const updateProgress = async (step, completedSteps = [], skippedSteps = []) => {
-    if (!progress) return;
-
-    try {
-      const updatedProgress = await OnboardingProgress.update(progress.id, {
-        current_step: step,
-        completed_steps: completedSteps,
-        skipped_steps: skippedSteps,
-        completion_percentage: Math.round((completedSteps.length / onboardingSteps.length) * 100)
-      });
-      setProgress(updatedProgress);
-    } catch (error) {
-      console.error('Error updating onboarding progress:', error);
-    }
-  };
-
-  const completeOnboarding = async () => {
-    if (!progress) return;
-
-    try {
-      await OnboardingProgress.update(progress.id, {
-        is_completed: true,
-        completion_percentage: 100,
-        completed_steps: [...(progress.completed_steps || []), onboardingSteps[currentStep].id]
-      });
-      
-      setIsVisible(false);
-      onComplete?.();
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
-    }
-  };
-
-  const skipOnboarding = async () => {
-    if (!progress) return;
-
-    try {
-      await OnboardingProgress.update(progress.id, {
-        is_completed: true,
-        skipped_steps: onboardingSteps.map(step => step.id)
-      });
-      
-      setIsVisible(false);
-      onSkip?.();
-    } catch (error) {
-      console.error('Error skipping onboarding:', error);
-    }
-  };
-
-  // Highlight elements based on current step
-  useEffect(() => {
-    const step = onboardingSteps[currentStep];
-    if (step?.highlight) {
-      const elements = document.querySelectorAll(step.highlight);
-      elements.forEach(el => {
-        el.classList.add('onboarding-highlight');
-      });
-
-      return () => {
-        elements.forEach(el => {
-          el.classList.remove('onboarding-highlight');
-        });
-      };
-    }
-  }, [currentStep]);
-
-  if (!isVisible || !progress) return null;
-
-  const step = onboardingSteps[currentStep];
-  const progressPercentage = ((currentStep + 1) / onboardingSteps.length) * 100;
+  if (!visible) return null;
 
   return (
-    <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 z-50" />
-      
-      {/* Onboarding Card */}
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg mx-4"
-        >
-          <Card className="shadow-2xl border-0 bg-white">
-            <CardContent className="p-8">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100">
-                    <step.icon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-900">{step.title}</h3>
-                    <p className="text-sm text-slate-600">{step.description}</p>
-                  </div>
-                </div>
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[#1a2540] border border-slate-600 rounded-2xl shadow-2xl overflow-hidden">
+        {/* Progress bar */}
+        <div className="h-1 bg-slate-700">
+          <div
+            className="h-1 bg-blue-500 transition-all duration-300"
+            style={{ width: `${((step + 1) / TOUR_STEPS.length) * 100}%` }}
+          />
+        </div>
+
+        <div className="p-6">
+          {/* Step counter */}
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-slate-500 text-xs">{step + 1} of {TOUR_STEPS.length}</span>
+            </div>
+            <button onClick={dismiss} className="text-slate-500 hover:text-white transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Icon */}
+          <div className={`w-14 h-14 ${current.bg} border ${current.border} rounded-2xl flex items-center justify-center mb-5`}>
+            <current.icon className={`w-7 h-7 ${current.color}`} />
+          </div>
+
+          {/* Content */}
+          <h3 className="text-white font-bold text-xl mb-2">{current.title}</h3>
+          <p className="text-slate-400 text-sm leading-relaxed mb-5">{current.description}</p>
+
+          {/* Link */}
+          {current.link && (
+            <a
+              href={current.link}
+              onClick={dismiss}
+              className={`block text-sm font-medium ${current.color} hover:underline mb-5`}
+            >
+              {current.linkLabel}
+            </a>
+          )}
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={dismiss}
+              className="text-slate-500 text-sm hover:text-slate-300 transition-colors"
+            >
+              Skip tour
+            </button>
+            <div className="flex items-center gap-3">
+              {!isFirst && (
                 <Button
+                  size="sm"
                   variant="ghost"
-                  size="icon"
-                  onClick={skipOnboarding}
-                  className="text-slate-400 hover:text-slate-600"
+                  onClick={() => setStep(s => s - 1)}
+                  className="text-slate-400 hover:text-white"
                 >
-                  <X className="w-4 h-4" />
+                  <ChevronLeft className="w-4 h-4" />
                 </Button>
-              </div>
-
-              {/* Progress */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700">
-                    Step {currentStep + 1} of {onboardingSteps.length}
-                  </span>
-                  <span className="text-sm text-slate-500">{Math.round(progressPercentage)}%</span>
-                </div>
-                <Progress value={progressPercentage} className="h-2" />
-              </div>
-
-              {/* Content */}
-              <div className="mb-8">
-                <p className="text-slate-700 leading-relaxed">{step.content}</p>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={previousStep}
-                    disabled={currentStep === 0}
-                    size="sm"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Previous
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={skipStep}
-                    size="sm"
-                    className="text-slate-500"
-                  >
-                    Skip
-                  </Button>
-                </div>
-                
-                <Button onClick={nextStep}>
-                  {currentStep === onboardingSteps.length - 1 ? 'Get Started!' : 'Next'}
-                  {currentStep < onboardingSteps.length - 1 && (
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  )}
+              )}
+              {isLast ? (
+                <Button
+                  size="sm"
+                  onClick={dismiss}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Get Started 🚀
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </AnimatePresence>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setStep(s => s + 1)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              )}
+            </div>
+          </div>
 
-      {/* CSS for highlighting elements */}
-      <style jsx global>{`
-        .onboarding-highlight {
-          position: relative;
-          z-index: 51;
-          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.2);
-          border-radius: 8px;
-          transition: all 0.3s ease;
-        }
-        
-        .reduced-motion .onboarding-highlight {
-          transition: none;
-        }
-      `}</style>
-    </>
+          {/* Dot indicators */}
+          <div className="flex items-center justify-center gap-1.5 mt-5">
+            {TOUR_STEPS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setStep(i)}
+                className={`rounded-full transition-all ${i === step ? 'w-4 h-2 bg-blue-500' : 'w-2 h-2 bg-slate-600 hover:bg-slate-500'}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

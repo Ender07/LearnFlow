@@ -10,8 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Play, CheckCircle2, Clock, Award, BookOpen, AlertTriangle,
-  RotateCcw, Download, CalendarDays, Target, TrendingUp
+  RotateCcw, Download, CalendarDays, Target, TrendingUp, WifiOff
 } from 'lucide-react';
+import OfflineSyncPanel from '@/components/mobile/OfflineSyncPanel';
 
 export default function MyLearning() {
   const { userProgress, processes, certifications, isLoading } = useData();
@@ -80,7 +81,7 @@ export default function MyLearning() {
 
         {/* Tabs */}
         <Tabs defaultValue="in_progress">
-          <TabsList className="bg-[#1a2540] border border-slate-700 w-full grid grid-cols-4">
+          <TabsList className="bg-[#1a2540] border border-slate-700 w-full grid grid-cols-5">
             <TabsTrigger value="in_progress" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-slate-400 text-xs md:text-sm">
               In Progress {inProgress.length > 0 && <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-1">{inProgress.length}</span>}
             </TabsTrigger>
@@ -92,6 +93,9 @@ export default function MyLearning() {
             </TabsTrigger>
             <TabsTrigger value="certifications" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-slate-400 text-xs md:text-sm">
               Certs
+            </TabsTrigger>
+            <TabsTrigger value="offline" className="data-[state=active]:bg-slate-600 data-[state=active]:text-white text-slate-400 text-xs md:text-sm">
+              <WifiOff className="w-3 h-3 mr-1" />Offline
             </TabsTrigger>
           </TabsList>
 
@@ -234,6 +238,9 @@ export default function MyLearning() {
                 ))}
               </div>
             )}
+          </TabsContent>
+          <TabsContent value="offline" className="mt-4">
+            <OfflineSyncPanel />
           </TabsContent>
         </Tabs>
       </div>

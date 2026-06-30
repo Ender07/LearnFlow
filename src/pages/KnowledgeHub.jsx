@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '@/components/providers/DataProvider';
-import { Plus, Search, MessageSquare, Lightbulb } from 'lucide-react';
+import { Plus, Search, MessageSquare, Lightbulb, Network, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +12,8 @@ import ExpertiseLeaderboard from '../components/knowledge/ExpertiseLeaderboard';
 import ContributionForm from '../components/knowledge/ContributionForm';
 import DiscussionForm from '../components/knowledge/DiscussionForm';
 import ExpertFinder from '../components/knowledge/ExpertFinder';
+import KnowledgeNetworkMap from '@/components/knowledge/KnowledgeNetworkMap';
+import RelatedInsightsEngine from '@/components/knowledge/RelatedInsightsEngine';
 
 export default function KnowledgeHub() {
   const { 
@@ -86,11 +88,16 @@ export default function KnowledgeHub() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Feed */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="contributions">
-              <TabsList>
-                <TabsTrigger value="contributions">Knowledge Base</TabsTrigger>
-                <TabsTrigger value="discussions">Discussions</TabsTrigger>
-              </TabsList>
+            <Tabs defaultValue="network">
+             <TabsList>
+               <TabsTrigger value="network"><Network className="w-3.5 h-3.5 mr-1.5" />Network Map</TabsTrigger>
+               <TabsTrigger value="contributions">Knowledge Base</TabsTrigger>
+               <TabsTrigger value="discussions">Discussions</TabsTrigger>
+             </TabsList>
+             <TabsContent value="network" className="mt-6 space-y-6">
+               <KnowledgeNetworkMap />
+               <RelatedInsightsEngine processId={null} processTitle="All Processes" />
+             </TabsContent>
               <TabsContent value="contributions" className="mt-6 space-y-6">
                 {filteredContributions.map(c => <KnowledgeContributionCard key={c.id} contribution={c} />)}
               </TabsContent>
