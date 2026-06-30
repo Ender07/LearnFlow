@@ -26,9 +26,9 @@ export default function FeedbackManagement() {
   const isAdmin = currentUser?.role === 'admin';
 
   // Memoize filtered feedback lists for performance
-  const openFeedback = useMemo(() => allFeedback.filter(f => f.status === 'open'), [allFeedback]);
-  const inReviewFeedback = useMemo(() => allFeedback.filter(f => f.status === 'in_review'), [allFeedback]);
-  const resolvedFeedback = useMemo(() => allFeedback.filter(f => f.status === 'resolved'), [allFeedback]);
+  const openFeedback = useMemo(() => (allFeedback || []).filter(f => f.status === 'open'), [allFeedback]);
+  const inReviewFeedback = useMemo(() => (allFeedback || []).filter(f => f.status === 'in_review'), [allFeedback]);
+  const resolvedFeedback = useMemo(() => (allFeedback || []).filter(f => f.status === 'resolved'), [allFeedback]);
 
   const handleViewDetails = (feedbackItem) => {
     setSelectedFeedback(feedbackItem);
@@ -38,7 +38,7 @@ export default function FeedbackManagement() {
     setSelectedFeedback(null);
   };
 
-  if (isLoading && !allFeedback.length) {
+  if (isLoading && !(allFeedback || []).length) {
     return (
       <div className="p-6">
         <Skeleton className="h-12 w-1/3 mb-8" />
