@@ -18,6 +18,7 @@ import EquipmentLibrary from './pages/EquipmentLibrary';
 import SupervisorDashboard from './pages/SupervisorDashboard';
 import Admin from './pages/Admin';
 import Analytics from './pages/Analytics';
+import ComplianceCenter from './pages/ComplianceCenter';
 
 // Legacy pages
 import ARGuidance from './pages/ARGuidance';
@@ -78,6 +79,7 @@ const AuthenticatedApp = () => {
         <Route path="/EquipmentLibrary" element={<EquipmentLibrary />} />
         <Route path="/SupervisorDashboard" element={<SupervisorDashboard />} />
         <Route path="/Analytics" element={<Analytics />} />
+        <Route path="/ComplianceCenter" element={<ComplianceCenter />} />
         <Route path="/Admin" element={<Admin />} />
         <Route path="/Notifications" element={<Notifications />} />
         <Route path="/Profile" element={<Profile />} />

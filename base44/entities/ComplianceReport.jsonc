@@ -11,19 +11,18 @@
         "user_activity_summary",
         "certification_status",
         "security_events",
-        "system_usage_analytics"
+        "system_usage_analytics",
+        "predictive_gap_forecast"
       ],
       "description": "Type of compliance report"
     },
     "reporting_period_start": {
       "type": "string",
-      "format": "date",
-      "description": "Start date of the reporting period"
+      "format": "date"
     },
     "reporting_period_end": {
       "type": "string",
-      "format": "date",
-      "description": "End date of the reporting period"
+      "format": "date"
     },
     "generated_for": {
       "type": "string",
@@ -51,23 +50,51 @@
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "description": "Compliance recommendations and action items"
+      }
     },
     "report_file_url": {
-      "type": "string",
-      "description": "URL to the generated report file"
+      "type": "string"
     },
     "digital_signature": {
-      "type": "string",
-      "description": "Digital signature for report authenticity"
+      "type": "string"
     },
     "regulatory_references": {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "affected_users": {
+      "type": "array",
+      "items": {
+        "type": "string"
       },
-      "description": "Relevant regulatory standards and codes"
+      "description": "User IDs with compliance gaps"
+    },
+    "affected_certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Certification IDs at risk of lapsing"
+    },
+    "predicted_gap_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Predicted date when a compliance gap will occur"
+    },
+    "risk_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "AI-calculated compliance risk score"
+    },
+    "auto_assigned_trainings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "UserProgress IDs auto-created by the predictive engine"
     }
   },
   "required": [

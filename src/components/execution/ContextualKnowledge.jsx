@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThumbsUp, User, CheckCircle, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import KnowledgeGraphPanel from '@/components/knowledge/KnowledgeGraphPanel';
 
 export default function ContextualKnowledge({ processId, stepId }) {
   const [contributions, setContributions] = useState([]);
@@ -52,6 +53,7 @@ export default function ContextualKnowledge({ processId, stepId }) {
 
   return (
     <div className="p-4 space-y-4">
+      <KnowledgeGraphPanel processId={processId} stepId={stepId} />
       {contributions.map(item => (
         <Card key={item.id} className="bg-white">
           <CardHeader>

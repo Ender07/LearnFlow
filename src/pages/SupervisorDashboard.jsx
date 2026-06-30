@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, ClipboardCheck, CheckCircle2, XCircle, AlertTriangle, Clock } from 'lucide-react';
+import ShadowExpertPanel from '@/components/supervisor/ShadowExpertPanel';
 
 export default function SupervisorDashboard() {
   const { currentUser, users, reviews, processes, userProgress, isLoading, refetchData } = useData();
@@ -101,6 +102,8 @@ export default function SupervisorDashboard() {
             </Card>
           ))}
         </div>
+
+        <ShadowExpertPanel />
 
         <Tabs defaultValue="reviews">
           <TabsList className="bg-[#1a2540] border border-slate-700 w-full grid grid-cols-2">

@@ -23,19 +23,16 @@
       "description": "Type of knowledge being shared"
     },
     "title": {
-      "type": "string",
-      "description": "Brief title of the contribution"
+      "type": "string"
     },
     "content": {
-      "type": "string",
-      "description": "The actual knowledge or insight being shared"
+      "type": "string"
     },
     "media_urls": {
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "description": "Supporting images, videos, or documents"
+      }
     },
     "contributor_expertise_level": {
       "type": "string",
@@ -44,42 +41,45 @@
         "intermediate",
         "expert",
         "master"
-      ],
-      "description": "Self-reported expertise level of contributor"
+      ]
     },
     "years_experience": {
-      "type": "number",
-      "description": "Years of experience in this area"
+      "type": "number"
     },
     "validation_score": {
       "type": "number",
-      "default": 0,
-      "description": "Community validation score (upvotes minus downvotes)"
+      "default": 0
     },
     "validation_count": {
       "type": "number",
-      "default": 0,
-      "description": "Total number of validations received"
+      "default": 0
     },
     "is_verified": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether this contribution has been verified by a supervisor or expert"
+      "default": false
     },
     "verified_by": {
-      "type": "string",
-      "description": "ID of the person who verified this contribution"
+      "type": "string"
     },
     "implementation_impact": {
-      "type": "object",
-      "description": "Measured impact of implementing this knowledge"
+      "type": "object"
     },
     "tags": {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "related_contribution_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
       },
-      "description": "Searchable tags for categorization"
+      "description": "IDs of peer contributions this one relates to or supersedes"
+    },
+    "graph_node_id": {
+      "type": "string",
+      "description": "Identifier used in KnowledgeGraph edge mapping"
     }
   },
   "required": [

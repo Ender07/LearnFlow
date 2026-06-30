@@ -34,6 +34,7 @@ const NAV_GROUPS = [
     items: [
       { title: 'Supervisor Dashboard', path: '/SupervisorDashboard', icon: Users, adminOnly: false },
       { title: 'Analytics', path: '/Analytics', icon: BarChart3 },
+      { title: 'Compliance', path: '/ComplianceCenter', icon: Target },
     ]
   },
   {
