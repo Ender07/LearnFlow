@@ -9,7 +9,7 @@ import { GamificationProvider } from '@/components/gamification/GamificationEngi
 import {
   LayoutDashboard, BookOpen, Route, Award, Hammer, Users, BarChart3,
   Settings, Bell, User, Menu, X, ChevronLeft, ChevronRight, Zap,
-  BookMarked, Target, GraduationCap
+  BookMarked, Target, GraduationCap, Lightbulb
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -26,6 +26,7 @@ const NAV_GROUPS = [
     label: 'Content',
     items: [
       { title: 'Process Library', path: '/ProcessLibrary', icon: BookOpen },
+      { title: 'Knowledge Hub', path: '/KnowledgeHub', icon: Lightbulb },
       { title: 'Equipment', path: '/EquipmentLibrary', icon: Hammer },
     ]
   },
