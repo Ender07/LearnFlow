@@ -24,6 +24,7 @@ import { DynamicLearningPath } from "@/entities/all";
 import { useToast } from "@/components/common/Toast";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import DynamicPathTimeline from "@/components/learning-paths/DynamicPathTimeline";
 
 export default function AdaptiveLearningPaths() {
   const { 
@@ -364,23 +365,52 @@ export default function AdaptiveLearningPaths() {
         </div>
 
         {dynamicPaths.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16"
-          >
-            <BrainCircuit className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-700 mb-2">No Adaptive Paths Yet</h3>
-            <p className="text-slate-500 mb-6 max-w-md mx-auto">
-              Create your first AI-powered learning path tailored to your specific goals and learning style.
-            </p>
-            <Button 
-              onClick={() => setShowCreateDialog(true)}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate Your First Path
-            </Button>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {/* Prompt to generate */}
+            <div className="text-center py-10 bg-white/60 rounded-2xl border border-slate-200">
+              <BrainCircuit className="w-14 h-14 text-slate-400 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-slate-700 mb-2">No Adaptive Path Yet</h3>
+              <p className="text-slate-500 mb-5 max-w-md mx-auto text-sm">
+                Generate an AI-powered path or browse all available processes below.
+              </p>
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generate Your First Path
+              </Button>
+            </div>
+
+            {/* Fallback: process list */}
+            {processes.length > 0 && (
+              <div>
+                <h3 className="text-slate-700 font-semibold mb-3">All Available Processes</h3>
+                <div className="grid gap-3">
+                  {processes.slice(0, 10).map(p => {
+                    const prog = userProgress.find(up => up.process_id === p.id);
+                    return (
+                      <div key={p.id} className="flex items-center gap-3 p-3 bg-white/80 rounded-xl border border-slate-200">
+                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                          prog?.status === 'completed' ? 'bg-green-500' :
+                          prog ? 'bg-blue-500' : 'bg-slate-300'
+                        }`} />
+                        <span className="flex-1 text-slate-700 text-sm font-medium">{p.title}</span>
+                        {prog?.completion_percentage != null && (
+                          <span className="text-slate-400 text-xs">{prog.completion_percentage}%</span>
+                        )}
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to={`/ProcessExecution?id=${p.id}`}>
+                            <ArrowRight className="w-3 h-3 mr-1" />
+                            {prog ? 'Continue' : 'Start'}
+                          </Link>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </div>
@@ -460,30 +490,10 @@ function DynamicPathCard({ path, processes, userProgress, onAdapt, calculateProg
             </div>
           )}
 
-          {/* Path Sequence Preview */}
-          <div className="space-y-2">
-            <h5 className="font-medium text-slate-700 text-sm">Learning Sequence</h5>
-            <div className="space-y-1">
-              {path.generated_sequence.slice(0, 4).map((seq, idx) => {
-                const processData = processes.find(p => p.id === seq.process_id);
-                return (
-                  <div key={seq.process_id} className="flex items-center gap-2 text-xs">
-                    <div className={`w-2 h-2 rounded-full ${
-                      seq.status === 'completed' ? 'bg-green-500' : 
-                      seq.status === 'active' ? 'bg-blue-500' : 'bg-slate-300'
-                    }`} />
-                    <span className={seq.status === 'completed' ? 'line-through text-slate-400' : 'text-slate-600'}>
-                      {idx + 1}. {processData?.title || 'Loading...'}
-                    </span>
-                  </div>
-                );
-              })}
-              {path.generated_sequence.length > 4 && (
-                <div className="text-xs text-slate-400 pl-4">
-                  +{path.generated_sequence.length - 4} more steps...
-                </div>
-              )}
-            </div>
+          {/* Path Timeline */}
+          <div>
+            <h5 className="font-medium text-slate-700 text-sm mb-3">Learning Sequence</h5>
+            <DynamicPathTimeline path={path} processes={processes} userProgress={userProgress} />
           </div>
 
           {/* Recent Adaptations */}

@@ -38,6 +38,7 @@ import BlockchainCredentials from './pages/BlockchainCredentials';
 import LearnFlowContentStudio from './pages/LearnFlowContentStudio';
 import AdaptiveLearningPaths from './pages/AdaptiveLearningPaths';
 import AutonomicSystem from './pages/AutonomicSystem';
+import Community from './pages/Community';
 import Layout from './Layout';
 // Add page imports here
 
@@ -101,6 +102,7 @@ const AuthenticatedApp = () => {
         <Route path="/LearnFlowContentStudio" element={<LearnFlowContentStudio />} />
         <Route path="/AdaptiveLearningPaths" element={<AdaptiveLearningPaths />} />
         <Route path="/AutonomicSystem" element={<AutonomicSystem />} />
+        <Route path="/Community" element={<Community />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Layout>

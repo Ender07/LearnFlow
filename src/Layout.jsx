@@ -11,7 +11,7 @@ import {
   Settings, Bell, User, Menu, X, ChevronLeft, ChevronRight, Zap,
   BookMarked, Target, Lightbulb, ShieldCheck, BarChart2, Trophy,
   Cpu, Glasses, Puzzle, KeyRound, Shield, ClipboardList, Wrench,
-  Brain, Bot, Layers
+  Brain, Bot, Layers, MessageSquare
 } from 'lucide-react';
 import NotificationBell from '@/components/layout/NotificationBell';
 
@@ -43,6 +43,12 @@ const NAV_GROUPS = [
       { title: 'LearnFlow Adaptive Paths', path: '/AdaptiveLearningPaths', icon: Cpu },
       { title: 'AR Guidance', path: '/ARGuidance', icon: Glasses },
       { title: 'VR Simulation', path: '/VRSimulation', icon: Puzzle },
+    ]
+  },
+  {
+    label: 'Community',
+    items: [
+      { title: 'Discussions', path: '/Community', icon: MessageSquare },
     ]
   },
   {
