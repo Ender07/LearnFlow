@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { User, Award, Star, TrendingUp, Shield, Edit3, Save, X, Zap } from 'lucide-react';
 
 export default function Profile() {
-  const { currentUser, userProgress, certifications, badges, isLoading, refetchData } = useData();
+  const { currentUser, userProgress, certifications, badges, ledgerEntries, isLoading, refetchData } = useData();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({});
@@ -31,8 +31,9 @@ export default function Profile() {
   };
 
   const completed = userProgress.filter(p => p.status === 'completed').length;
-  const level = currentUser?.gamification_level || Math.ceil(completed / 5) + 1;
-  const points = currentUser?.gamification_points || completed * 50;
+  const myLedger = (ledgerEntries || []).filter(e => e.user_id === currentUser?.id);
+  const points = myLedger.reduce((sum, e) => sum + (e.points || 0), 0) || completed * 50;
+  const level = Math.max(1, Math.floor(points / 1000) + 1);
   const nextLevelPoints = level * 1000;
   const levelProgress = Math.min((points % 1000) / 10, 100);
 
@@ -139,6 +140,29 @@ export default function Profile() {
                     </div>
                     <div className="text-white text-sm font-medium">{badge.title}</div>
                     <div className="text-slate-500 text-xs mt-0.5">{badge.points} XP</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {myLedger.length > 0 && (
+          <Card className="bg-[#1a2540] border border-slate-700/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-base flex items-center gap-2">
+                <Star className="w-4 h-4 text-blue-400" /> Points History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {myLedger.slice().reverse().map(entry => (
+                  <div key={entry.id} className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0">
+                    <div>
+                      <div className="text-white text-sm font-medium">{entry.reason}</div>
+                      {entry.details && <div className="text-slate-500 text-xs">{entry.details}</div>}
+                    </div>
+                    <span className="text-emerald-400 font-bold text-sm">+{entry.points} XP</span>
                   </div>
                 ))}
               </div>

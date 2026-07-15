@@ -13,6 +13,7 @@ import {
   Cpu, Glasses, Puzzle, KeyRound, Shield, ClipboardList, Wrench,
   Brain, Bot, Layers
 } from 'lucide-react';
+import NotificationBell from '@/components/layout/NotificationBell';
 
 const NAV_GROUPS = [
   {
@@ -127,21 +128,27 @@ function Sidebar({ collapsed, setCollapsed }) {
       </nav>
 
       {/* User footer */}
-      <div className={`border-t border-slate-800 p-3 ${collapsed ? 'flex justify-center' : ''}`}>
+      <div className={`border-t border-slate-800 p-3 ${collapsed ? 'flex flex-col items-center gap-2' : ''}`}>
         {!collapsed ? (
-          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-              {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors flex-1 min-w-0">
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+                {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-white text-sm font-medium truncate">{currentUser?.full_name || 'User'}</div>
+                <div className="text-slate-500 text-xs capitalize">{currentUser?.role || 'user'}</div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-white text-sm font-medium truncate">{currentUser?.full_name || 'User'}</div>
-              <div className="text-slate-500 text-xs capitalize">{currentUser?.role || 'user'}</div>
-            </div>
+            <NotificationBell />
           </div>
         ) : (
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
-            {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-          </div>
+          <>
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              {currentUser?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <NotificationBell />
+          </>
         )}
       </div>
 
@@ -190,12 +197,13 @@ function AppLayout({ children }) {
           <button onClick={() => setMobileSidebarOpen(true)} className="text-slate-400 hover:text-white">
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
             <span className="text-blue-400 font-bold text-lg">LearnFlow</span>
           </div>
+          <NotificationBell />
         </div>
         {children}
       </main>

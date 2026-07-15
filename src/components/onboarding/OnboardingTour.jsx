@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, ChevronLeft, MapPin, Sparkles, Shield, Wifi, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -71,24 +71,92 @@ const TOUR_STEPS = [
   },
 ];
 
-const TOUR_KEY = 'learnflow_tour_v2_dismissed';
-
 export default function OnboardingTour() {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
+  const progressRecordId = useRef(null);
+  const startTime = useRef(Date.now());
 
   useEffect(() => {
-    const dismissed = localStorage.getItem(TOUR_KEY);
-    if (!dismissed) {
-      // Slight delay so the page renders first
-      const t = setTimeout(() => setVisible(true), 1200);
-      return () => clearTimeout(t);
-    }
+    let cancelled = false;
+
+    const init = async () => {
+      // Check if already dismissed via localStorage (fast path)
+      const dismissed = localStorage.getItem('learnflow_tour_v2_dismissed');
+      if (dismissed) return;
+
+      // Try to get current user and check OnboardingProgress entity
+      const user = await base44.auth.me().catch(() => null);
+      if (!user || cancelled) return;
+
+      const existing = await base44.entities.OnboardingProgress.filter({
+        user_id: user.id,
+        onboarding_type: 'first_time',
+      }).catch(() => []);
+
+      if (cancelled) return;
+
+      if (existing.length > 0) {
+        const record = existing[0];
+        progressRecordId.current = record.id;
+        if (record.is_completed) return; // Already done
+        // Resume from saved step
+        const resumeStep = Math.min(record.current_step || 0, TOUR_STEPS.length - 1);
+        setStep(resumeStep);
+        setTimeout(() => setVisible(true), 1200);
+      } else {
+        // First time — create a progress record
+        const created = await base44.entities.OnboardingProgress.create({
+          user_id: user.id,
+          onboarding_type: 'first_time',
+          current_step: 0,
+          completed_steps: [],
+          skipped_steps: [],
+          completion_percentage: 0,
+          is_completed: false,
+        }).catch(() => null);
+        if (created) progressRecordId.current = created.id;
+        setTimeout(() => setVisible(true), 1200);
+      }
+    };
+
+    init();
+    return () => { cancelled = true; };
   }, []);
 
-  const dismiss = () => {
-    localStorage.setItem(TOUR_KEY, 'true');
+  const persistStep = async (stepIndex, completedIds = [], isCompleted = false) => {
+    if (!progressRecordId.current) return;
+    const pct = Math.round((stepIndex / TOUR_STEPS.length) * 100);
+    await base44.entities.OnboardingProgress.update(progressRecordId.current, {
+      current_step: stepIndex,
+      completed_steps: completedIds,
+      completion_percentage: isCompleted ? 100 : pct,
+      is_completed: isCompleted,
+      time_spent: Math.round((Date.now() - startTime.current) / 60000),
+    }).catch(() => {});
+  };
+
+  const goToStep = (newStep) => {
+    const completedIds = TOUR_STEPS.slice(0, newStep).map(s => s.id);
+    setStep(newStep);
+    persistStep(newStep, completedIds);
+  };
+
+  const dismiss = async (skipped = false) => {
+    localStorage.setItem('learnflow_tour_v2_dismissed', 'true');
     setVisible(false);
+    const completedIds = TOUR_STEPS.slice(0, step).map(s => s.id);
+    const skippedIds = skipped ? TOUR_STEPS.slice(step).map(s => s.id) : [];
+    if (progressRecordId.current) {
+      await base44.entities.OnboardingProgress.update(progressRecordId.current, {
+        current_step: step,
+        completed_steps: completedIds,
+        skipped_steps: skippedIds,
+        completion_percentage: skipped ? Math.round((step / TOUR_STEPS.length) * 100) : 100,
+        is_completed: !skipped,
+        time_spent: Math.round((Date.now() - startTime.current) / 60000),
+      }).catch(() => {});
+    }
   };
 
   const current = TOUR_STEPS[step];
@@ -115,7 +183,7 @@ export default function OnboardingTour() {
               <MapPin className="w-3.5 h-3.5 text-slate-500" />
               <span className="text-slate-500 text-xs">{step + 1} of {TOUR_STEPS.length}</span>
             </div>
-            <button onClick={dismiss} className="text-slate-500 hover:text-white transition-colors">
+            <button onClick={() => dismiss(true)} className="text-slate-500 hover:text-white transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -133,7 +201,7 @@ export default function OnboardingTour() {
           {current.link && (
             <a
               href={current.link}
-              onClick={dismiss}
+              onClick={() => dismiss(false)}
               className={`block text-sm font-medium ${current.color} hover:underline mb-5`}
             >
               {current.linkLabel}
@@ -143,7 +211,7 @@ export default function OnboardingTour() {
           {/* Navigation */}
           <div className="flex items-center justify-between">
             <button
-              onClick={dismiss}
+              onClick={() => dismiss(true)}
               className="text-slate-500 text-sm hover:text-slate-300 transition-colors"
             >
               Skip tour
@@ -153,7 +221,7 @@ export default function OnboardingTour() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => setStep(s => s - 1)}
+                  onClick={() => goToStep(step - 1)}
                   className="text-slate-400 hover:text-white"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -162,7 +230,7 @@ export default function OnboardingTour() {
               {isLast ? (
                 <Button
                   size="sm"
-                  onClick={dismiss}
+                  onClick={() => dismiss(false)}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Get Started 🚀
@@ -170,7 +238,7 @@ export default function OnboardingTour() {
               ) : (
                 <Button
                   size="sm"
-                  onClick={() => setStep(s => s + 1)}
+                  onClick={() => goToStep(step + 1)}
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Next <ChevronRight className="w-4 h-4 ml-1" />
@@ -184,8 +252,8 @@ export default function OnboardingTour() {
             {TOUR_STEPS.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setStep(i)}
-                className={`rounded-full transition-all ${i === step ? 'w-4 h-2 bg-blue-500' : 'w-2 h-2 bg-slate-600 hover:bg-slate-500'}`}
+                onClick={() => goToStep(i)}
+                className={`rounded-full transition-all ${i === step ? 'w-4 h-2 bg-blue-500' : i < step ? 'w-2 h-2 bg-blue-700' : 'w-2 h-2 bg-slate-600 hover:bg-slate-500'}`}
               />
             ))}
           </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation, Link } from 'react-router-dom';
-import { Process, UserProgress, KnowledgeContribution, Discussion } from '@/entities/all';
+import { Process, UserProgress, KnowledgeContribution, Discussion, GamificationLedger } from '@/entities/all';
 import { useGamification } from '@/components/gamification/GamificationEngine';
 import { useData } from '@/components/providers/DataProvider';
 import { createPageUrl } from '@/utils';
@@ -107,11 +107,36 @@ export default function ProcessExecution() {
     setCurrentStepIndex(stepIndex);
 
     if (isCompleted) {
-      pointAwards.processCompletion(process.title, 100);
+      // Write to GamificationLedger — process completion
+      await GamificationLedger.create({
+        user_id: currentUser.id,
+        points: 100,
+        reason: 'Process Completion',
+        details: `Completed "${process.title}"`,
+        related_entity_id: process.id,
+      }).catch(() => {});
+
       if (process.grants_certification_id) {
-        awardPoints(200, "Certification Earned", `Earned certification for ${process.title}`);
+        await GamificationLedger.create({
+          user_id: currentUser.id,
+          points: 200,
+          reason: 'Certification Earned',
+          details: `Earned certification for "${process.title}"`,
+          related_entity_id: process.grants_certification_id,
+        }).catch(() => {});
       }
-      refetchData(); // To update progress across the app
+
+      pointAwards.processCompletion(process.title, 100);
+      refetchData();
+    } else {
+      // Award small points per step
+      await GamificationLedger.create({
+        user_id: currentUser.id,
+        points: 10,
+        reason: 'Step Completed',
+        details: `Step ${stepIndex} of "${process.title}"`,
+        related_entity_id: process.id,
+      }).catch(() => {});
     }
   };
 
