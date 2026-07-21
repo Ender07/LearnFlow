@@ -39,33 +39,33 @@ import LearnFlowContentStudio from './pages/LearnFlowContentStudio';
 import AdaptiveLearningPaths from './pages/AdaptiveLearningPaths';
 import AutonomicSystem from './pages/AutonomicSystem';
 import Community from './pages/Community';
+import Login from './pages/Login';
 import Layout from './Layout';
-// Add page imports here
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isAuthenticated, isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center bg-[#0f1729]">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  // Handle authentication errors
+  // Handle authentication errors or lack of auth session
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
     }
   }
 
-  // Render the main app
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  // Render the main app wrapped in Layout shell
   return (
     <Layout>
       <Routes>
@@ -103,6 +103,7 @@ const AuthenticatedApp = () => {
         <Route path="/AdaptiveLearningPaths" element={<AdaptiveLearningPaths />} />
         <Route path="/AutonomicSystem" element={<AutonomicSystem />} />
         <Route path="/Community" element={<Community />} />
+        <Route path="/login" element={<Login />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Layout>
@@ -111,7 +112,6 @@ const AuthenticatedApp = () => {
 
 
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>

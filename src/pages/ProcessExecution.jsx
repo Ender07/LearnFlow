@@ -7,8 +7,9 @@ import { useData } from '@/components/providers/DataProvider';
 import { createPageUrl } from '@/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import useVoiceNavigation from '../hooks/useVoiceNavigation';
 
 import ProcessHeader from '../components/execution/ProcessHeader';
 import StepRenderer from '../components/execution/StepRenderer';
@@ -35,6 +36,7 @@ export default function ProcessExecution() {
   const [isLoadingProcesses, setIsLoadingProcesses] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [voiceActive, setVoiceActive] = useState(false);
 
   useEffect(() => {
     if (!processId) {
@@ -60,7 +62,7 @@ export default function ProcessExecution() {
       setProcess(processData);
 
       const [progressData, contributionsData, discussionsData] = await Promise.all([
-        UserProgress.filter({ process_id: processId, created_by: currentUser.email }).then(res => res[0]),
+        UserProgress.filter({ process_id: processId, created_by: currentUser?.email }).then(res => res[0]),
         KnowledgeContribution.filter({ process_id: processId }),
         Discussion.filter({ process_id: processId })
       ]);
@@ -90,7 +92,7 @@ export default function ProcessExecution() {
   };
 
   const updateProgress = async (stepIndex, isCompleted = false) => {
-    if (!progress) return;
+    if (!progress || !process) return;
 
     const completion_percentage = Math.round(((stepIndex + 1) / process.steps.length) * 100);
     const status = isCompleted ? 'completed' : 'in_progress';
@@ -107,9 +109,8 @@ export default function ProcessExecution() {
     setCurrentStepIndex(stepIndex);
 
     if (isCompleted) {
-      // Write to GamificationLedger — process completion
       await GamificationLedger.create({
-        user_id: currentUser.id,
+        user_id: currentUser?.id || 'usr-operator',
         points: 100,
         reason: 'Process Completion',
         details: `Completed "${process.title}"`,
@@ -118,7 +119,7 @@ export default function ProcessExecution() {
 
       if (process.grants_certification_id) {
         await GamificationLedger.create({
-          user_id: currentUser.id,
+          user_id: currentUser?.id || 'usr-operator',
           points: 200,
           reason: 'Certification Earned',
           details: `Earned certification for "${process.title}"`,
@@ -126,12 +127,11 @@ export default function ProcessExecution() {
         }).catch(() => {});
       }
 
-      pointAwards.processCompletion(process.title, 100);
+      pointAwards?.processCompletion?.(process.title, 100);
       refetchData();
     } else {
-      // Award small points per step
       await GamificationLedger.create({
-        user_id: currentUser.id,
+        user_id: currentUser?.id || 'usr-operator',
         points: 10,
         reason: 'Step Completed',
         details: `Step ${stepIndex} of "${process.title}"`,
@@ -140,8 +140,40 @@ export default function ProcessExecution() {
     }
   };
 
+  const handleNextVoice = () => {
+    if (process && currentStepIndex < process.steps.length - 1) {
+      updateProgress(currentStepIndex + 1, currentStepIndex + 1 === process.steps.length - 1);
+    }
+  };
+
+  const handlePrevVoice = () => {
+    if (currentStepIndex > 0) {
+      updateProgress(currentStepIndex - 1);
+    }
+  };
+
+  const currentStepText = process?.steps?.[currentStepIndex]
+    ? `${process.steps[currentStepIndex].title}. ${process.steps[currentStepIndex].description}`
+    : '';
+
+  const { supported: voiceSupported, listening: voiceListening, startListening, stopListening } = useVoiceNavigation({
+    onNext: handleNextVoice,
+    onPrev: handlePrevVoice,
+    stepInstruction: currentStepText,
+    active: voiceActive
+  });
+
+  const toggleVoice = () => {
+    if (voiceListening) {
+      stopListening();
+      setVoiceActive(false);
+    } else {
+      startListening();
+      setVoiceActive(true);
+    }
+  };
+
   const handleHint = () => {
-    // Placeholder for future hint logic
     console.log("Hint requested from LearnFlowAssistant");
   };
 
@@ -152,7 +184,6 @@ export default function ProcessExecution() {
       const updatedSteps = prevProcess.steps.map((step, idx) => {
         if (idx === currentStepIndex) {
           let adaptedStep = { ...step };
-
           const stepDescription = step.description || '';
 
           if (adaptation.includes('simplify')) {
@@ -189,7 +220,6 @@ export default function ProcessExecution() {
     );
   }
 
-  // No process selected — show picker
   if (!processId) {
     return (
       <div className="min-h-screen bg-[#0f1729] p-4 md:p-6">
@@ -244,10 +274,23 @@ export default function ProcessExecution() {
   if (!process) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <ProcessHeader process={process} progress={progress} />
 
       <div className="max-w-4xl mx-auto p-6">
+        {voiceSupported && (
+          <div className="mb-4 flex justify-end">
+            <Button 
+              onClick={toggleVoice} 
+              variant={voiceListening ? "destructive" : "secondary"}
+              className="flex items-center gap-2 text-xs"
+            >
+              {voiceListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {voiceListening ? "Stop Hands-Free Voice Control" : "Start Hands-Free Voice Control"}
+            </Button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <StepRenderer
@@ -265,7 +308,6 @@ export default function ProcessExecution() {
         </div>
       </div>
 
-      {/* NEW: AI Assistant */}
       {process && (
         <LearnFlowAssistant
           currentStep={process.steps[currentStepIndex]}
@@ -277,7 +319,6 @@ export default function ProcessExecution() {
         />
       )}
 
-      {/* ExecutionControls */}
       <ExecutionControls
         currentStep={currentStepIndex}
         totalSteps={process.steps.length}
