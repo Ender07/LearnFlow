@@ -146,3 +146,6 @@ rl.on('line', async (line) => {
     });
   }
 });
+
+// Asynchronously pre-boot Vite server in background immediately on IDE/shell startup
+ensureServerRunning().catch(() => {});
